@@ -22,6 +22,7 @@ class Subprocess {
     this.exitCode = null;
     this.signalCode = null;
     this.killed = false;
+    this.finished = false;
 
     this.controller = new AbortController();
 
@@ -38,9 +39,13 @@ class Subprocess {
     this.childProcess = new Deno.Command(command[0], spawnOptions).spawn();
 
     this.exited = this.childProcess.status.then(status => {
+      this.finished = true;
       this.exitCode = status.code;
       this.signalCode = status.signal;
       return status.code;
+    }).catch(error => {
+      this.finished = true;
+      return Promise.reject(error);
     });
   }
 

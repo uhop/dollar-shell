@@ -27,6 +27,7 @@ class Subprocess {
     this.exitCode = null;
     this.signalCode = null;
     this.killed = false;
+    this.finished = false;
 
     this.controller = new AbortController();
 
@@ -42,13 +43,13 @@ class Subprocess {
 
     this.childProcess = spawn(command[0], command.slice(1), spawnOptions);
     this.childProcess.on('exit', (code, signal) => {
-      console.log('EXIT:', code, signal);
+      this.finished = true;
       this.exitCode = code;
       this.signalCode = signal;
       this.resolve(code);
     });
     this.childProcess.on('error', error => {
-      console.log('ERROR:', error);
+      this.finished = true;
       this.reject(error);
     });
 

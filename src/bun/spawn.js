@@ -38,6 +38,10 @@ class Subprocess {
     return this.childProcess.exited;
   }
 
+  get finished() {
+    return this.childProcess.killed;
+  }
+
   get exitCode() {
     return this.childProcess.exitCode;
   }
