@@ -1,0 +1,42 @@
+{
+  "name": "dollar-shell",
+  "description": "Run shell commands with ease in Node, Deno, Bun",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./*": "./src/*"
+  },
+  "scripts": {
+    "test": "tape6 --flags FO"
+  },
+  "files": [
+    "/src",
+    "/index.js",
+    "LICENSE",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uhop/list-toolkit.git"
+  },
+  "bugs": {
+    "url": "https://github.com/uhop/list-toolkit/issues"
+  },
+  "homepage": "https://github.com/uhop/list-toolkit#readme",
+  "keywords": [
+    "shell",
+    "$"
+  ],
+  "author": "Eugene Lazutkin <eugene.lazutkin@gmail.com> (http://www.lazutkin.com/)",
+  "license": "BSD-3-Clause",
+  "devDependencies": {
+    "tape-six": "^0.9.6"
+  },
+  "tape6": {
+    "tests": [
+      "/tests/test-*.*js"
+    ]
+  }
+}
