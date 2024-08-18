@@ -32,6 +32,10 @@ class Subprocess {
     this.spawnOptions = spawnOptions;
 
     this.childProcess = Bun.spawn(command, spawnOptions);
+
+    this.stdin = this.childProcess.stdin ? new WritableStream(this.childProcess.stdin) : null;
+    this.stdout = this.childProcess.stdout || null;
+    this.stderr = this.childProcess.stderr || null;
   }
 
   get exited() {
@@ -48,18 +52,6 @@ class Subprocess {
 
   get signalCode() {
     return this.childProcess.signalCode;
-  }
-
-  get stdin() {
-    return this.childProcess.stdin || null;
-  }
-
-  get stdout() {
-    return this.childProcess.stdout || null;
-  }
-
-  get stderr() {
-    return this.childProcess.stderr || null;
   }
 
   kill() {
