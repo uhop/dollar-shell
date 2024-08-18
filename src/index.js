@@ -19,4 +19,19 @@ export const $ = backQuote((command, options) => {
   return sp.exited.then(() => ({code: sp.exitCode, signal: sp.signalCode, killed: sp.killed}));
 });
 
+export const fromShell = backQuote((command, options) => {
+  const sp = spawn(command, Object.assign({}, options, {stdout: 'pipe'}));
+  return sp.stdout;
+});
+
+export const toShell = backQuote((command, options) => {
+  const sp = spawn(command, Object.assign({}, options, {stdin: 'pipe'}));
+  return sp.stdin;
+});
+
+export const sh = backQuote((command, options) => {
+  const sp = spawn(command, Object.assign({}, options, {stdin: 'pipe', stdout: 'pipe'}));
+  return {readable: sp.stdout, writable: sp.stdin};
+});
+
 export default $;
