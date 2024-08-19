@@ -29,9 +29,7 @@ class Subprocess {
     this.killed = false;
     this.finished = false;
 
-    this.controller = new AbortController();
-
-    const spawnOptions = {signal: this.controller.signal, stdio: ['ignore', 'ignore', 'ignore']};
+    const spawnOptions = {stdio: ['ignore', 'ignore', 'ignore']};
     options.cwd && (spawnOptions.cwd = options.cwd);
     options.env && (spawnOptions.env = options.env);
 
@@ -65,7 +63,7 @@ class Subprocess {
 
   kill() {
     this.killed = true;
-    this.controller.abort();
+    this.childProcess.kill();
   }
 }
 
