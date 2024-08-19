@@ -34,5 +34,9 @@ export const throughProcess = backQuote((command, options) => {
   return {readable: sp.stdout, writable: sp.stdin};
 });
 
+$.from = fromProcess;
+$.to = toProcess;
+$.through = $.stream = $.sh = throughProcess;
+
 export {throughProcess as sh, fromProcess as from$, toProcess as to$};
 export default $;
