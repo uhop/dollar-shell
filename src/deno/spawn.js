@@ -70,7 +70,10 @@ class Subprocess {
 }
 
 export const currentExecPath = () => Deno.execPath();
+export const runFileArgs = ['run'];
+
 export const currentShellPath = () => (Deno.build.os === 'windows' ? Deno.env.get('ComSpec') || 'cmd.exe' : Deno.env.get('SHELL') || '/bin/sh');
+export const cwd = () => Deno.cwd();
 
 const denoSpawn = (command, options = {}) => new Subprocess(command, options);
 export {denoSpawn as spawn};

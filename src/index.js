@@ -10,7 +10,7 @@ if (typeof Deno !== 'undefined') {
 } else {
   mod = await import('./node/spawn.js');
 }
-export const {spawn, currentExecPath, currentShellPath} = mod;
+export const {spawn, cwd, currentExecPath, currentShellPath, runFileArgs} = mod;
 
 export const $$ = backQuote(spawn);
 

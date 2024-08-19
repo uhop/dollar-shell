@@ -70,7 +70,10 @@ class Subprocess {
 }
 
 export const currentExecPath = () => process.execPath;
+export const runFileArgs = [];
+
 export const currentShellPath = () => (process.platform === 'win32' ? process.env.ComSpec || 'cmd.exe' : process.env.SHELL || '/bin/sh');
+export const cwd = () => process.cwd();
 
 const nodeSpawn = (command, options = {}) => new Subprocess(command, options);
 export {nodeSpawn as spawn};
