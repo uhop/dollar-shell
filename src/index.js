@@ -10,7 +10,7 @@ if (typeof Deno !== 'undefined') {
 } else {
   mod = await import('./node/spawn.js');
 }
-export const spawn = mod.spawn;
+export const {spawn, currentExecPath, currentShellPath} = mod;
 
 export const $$ = backQuote(spawn);
 
@@ -34,5 +34,5 @@ export const throughProcess = backQuote((command, options) => {
   return {readable: sp.stdout, writable: sp.stdin};
 });
 
-export {throughProcess as sh};
+export {throughProcess as sh, fromProcess as from$, toProcess as to$};
 export default $;

@@ -38,15 +38,17 @@ class Subprocess {
 
     this.childProcess = new Deno.Command(command[0], spawnOptions).spawn();
 
-    this.exited = this.childProcess.status.then(status => {
-      this.finished = true;
-      this.exitCode = status.code;
-      this.signalCode = status.signal;
-      return status.code;
-    }).catch(error => {
-      this.finished = true;
-      return Promise.reject(error);
-    });
+    this.exited = this.childProcess.status
+      .then(status => {
+        this.finished = true;
+        this.exitCode = status.code;
+        this.signalCode = status.signal;
+        return status.code;
+      })
+      .catch(error => {
+        this.finished = true;
+        return Promise.reject(error);
+      });
   }
 
   get stdin() {
@@ -67,6 +69,8 @@ class Subprocess {
   }
 }
 
-const denoSpawn = (command, options = {}) => new Subprocess(command, options);
+export const currentExecPath = () => Deno.execPath();
+export const currentShellPath = () => (Deno.build.os === 'windows' ? Deno.env.get('ComSpec') || 'cmd.exe' : Deno.env.get('SHELL') || '/bin/sh');
 
+const denoSpawn = (command, options = {}) => new Subprocess(command, options);
 export {denoSpawn as spawn};

@@ -69,6 +69,8 @@ class Subprocess {
   }
 }
 
-const nodeSpawn = (command, options = {}) => new Subprocess(command, options);
+export const currentExecPath = () => process.execPath;
+export const currentShellPath = () => (process.platform === 'win32' ? process.env.ComSpec || 'cmd.exe' : process.env.SHELL || '/bin/sh');
 
+const nodeSpawn = (command, options = {}) => new Subprocess(command, options);
 export {nodeSpawn as spawn};
