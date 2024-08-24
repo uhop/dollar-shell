@@ -36,7 +36,7 @@ export const throughProcess = backQuote((command, options) => {
 
 $.from = fromProcess;
 $.to = toProcess;
-$.through = $.stream = $.sh = throughProcess;
+$.through = $.stream = $.io = throughProcess;
 
 export {throughProcess as io$, fromProcess as from$, toProcess as to$};
 export default $;

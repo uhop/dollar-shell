@@ -16,4 +16,4 @@ import {Writable} from 'node:stream';
 
 // await $({stdout: 'inherit'})`ls -l .`;
 
-from$`ls -l .`.pipeThrough(io$`grep LIC`).pipeTo(to$({stdout: 'inherit'})`wc`);
+$.from`ls -l .`.pipeThrough($.io`grep LIC`).pipeTo($.to({stdout: 'inherit'})`wc`);
