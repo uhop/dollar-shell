@@ -10,7 +10,7 @@ if (typeof Deno !== 'undefined') {
 } else {
   mod = await import('./node/spawn.js');
 }
-export const {spawn, cwd, currentExecPath, currentShellPath, runFileArgs} = mod;
+export const {spawn, cwd, currentExecPath, currentShellPath, runFileArgs, shellArgs} = mod;
 
 export const $$ = backQuote(spawn);
 
@@ -38,5 +38,5 @@ $.from = fromProcess;
 $.to = toProcess;
 $.through = $.stream = $.sh = throughProcess;
 
-export {throughProcess as sh, fromProcess as from$, toProcess as to$};
+export {throughProcess as io$, fromProcess as from$, toProcess as to$};
 export default $;
