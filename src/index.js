@@ -1,42 +1,82 @@
 'use strict';
 
-import backQuote from './back-quote.js';
+// load dependencies
 
-let mod;
+import bqSpawn from './bq-spawn.js';
+import bqShell from './bq-shell.js';
+
+let modSpawn;
 if (typeof Deno !== 'undefined') {
-  mod = await import('./deno/spawn.js');
+  modSpawn = await import('./spawn/deno.js');
 } else if (typeof Bun !== 'undefined') {
-  mod = await import('./bun/spawn.js');
+  modSpawn = await import('./spawn/bun.js');
 } else {
-  mod = await import('./node/spawn.js');
+  modSpawn = await import('./spawn/node.js');
 }
-export const {spawn, cwd, currentExecPath, currentShellPath, runFileArgs, shellArgs} = mod;
+export const {spawn, cwd, currentExecPath, currentShellPath, runFileArgs, shellArgs, isWindows} = modSpawn;
 
-export const $$ = backQuote(spawn);
+let modShell;
+if (isWindows) {
+  modShell = await import('./shell/windows.js');
+} else {
+  modShell = await import('./shell/unix.js');
+}
+export const {shellEscape} = modShell;
 
-export const $ = backQuote((command, options) => {
+// define spawn functions
+
+export const $$ = bqSpawn(spawn);
+
+export const $ = bqSpawn((command, options) => {
   const sp = spawn(command, options);
   return sp.exited.then(() => ({code: sp.exitCode, signal: sp.signalCode, killed: sp.killed}));
 });
 
-export const fromProcess = backQuote((command, options) => {
+const fromProcess = bqSpawn((command, options) => {
   const sp = spawn(command, Object.assign({}, options, {stdout: 'pipe'}));
   return sp.stdout;
 });
 
-export const toProcess = backQuote((command, options) => {
+const toProcess = bqSpawn((command, options) => {
   const sp = spawn(command, Object.assign({}, options, {stdin: 'pipe'}));
   return sp.stdin;
 });
 
-export const throughProcess = backQuote((command, options) => {
+const throughProcess = bqSpawn((command, options) => {
   const sp = spawn(command, Object.assign({}, options, {stdin: 'pipe', stdout: 'pipe'}));
   return {readable: sp.stdout, writable: sp.stdin};
 });
 
 $.from = fromProcess;
 $.to = toProcess;
-$.through = $.stream = $.io = throughProcess;
+$.through = $.io = throughProcess;
 
-export {throughProcess as io$, fromProcess as from$, toProcess as to$};
+// define shell functions
+
+export const shell = bqShell(shellEscape, (command, options) => spawn([currentShellPath(), ...shellArgs, command], options));
+
+export const $sh = bqShell(shellEscape, (command, options) => {
+  const sp = spawn([currentShellPath(), ...shellArgs, command], options);
+  return sp.exited.then(() => ({code: sp.exitCode, signal: sp.signalCode, killed: sp.killed}));
+});
+
+const fromShell = bqShell(shellEscape, (command, options) => {
+  const sp = spawn([currentShellPath(), ...shellArgs, command], Object.assign({}, options, {stdout: 'pipe'}));
+  return sp.stdout;
+});
+
+const toShell = bqShell(shellEscape, (command, options) => {
+  const sp = spawn([currentShellPath(), ...shellArgs, command], Object.assign({}, options, {stdin: 'pipe'}));
+  return sp.stdin;
+});
+
+const throughShell = bqShell(shellEscape, (command, options) => {
+  const sp = spawn([currentShellPath(), ...shellArgs, command], Object.assign({}, options, {stdin: 'pipe', stdout: 'pipe'}));
+  return {readable: sp.stdout, writable: sp.stdin};
+});
+
+$sh.from = fromShell;
+$sh.to = toShell;
+$sh.through = $sh.io = throughShell;
+
 export default $;

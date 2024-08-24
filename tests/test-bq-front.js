@@ -2,11 +2,11 @@
 
 import tests from 'tape-six';
 
-import backQuote from 'dollar-shell/back-quote.js';
+import bqSpawn from 'dollar-shell/bq-spawn.js';
 
-const $ = backQuote((command, options) => ({command, options}));
+const $ = bqSpawn((command, options) => ({command, options}));
 
-tests('backQuote', t => {
+tests('bqSpawn', t => {
   let result = $`ls -l ${'.'}`;
   t.deepEqual(result, {command: ['ls', '-l', '.'], options: {}});
 

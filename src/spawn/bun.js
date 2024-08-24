@@ -64,8 +64,9 @@ export const currentExecPath = () => process.execPath;
 export const runFileArgs = ['run'];
 
 // Bun doesn't run on Windows as of now. It can run on WSL.
-export const currentShellPath = () => (process.platform === 'win32' ? Bun.env.ComSpec || 'cmd.exe' : Bun.env.SHELL || '/bin/sh');
-export const shellArgs = process.platform === 'win32' ? ['/d', '/s', '/c'] : ['-c'];
+export const isWindows = process.platform === 'win32';
+export const currentShellPath = () => (isWindows ? Bun.env.ComSpec || 'cmd.exe' : Bun.env.SHELL || '/bin/sh');
+export const shellArgs = isWindows ? ['/d', '/s', '/c'] : ['-c'];
 
 export const cwd = () => process.cwd();
 

@@ -53,9 +53,9 @@ const impl = (spawn, options) => (strings, ...args) => {
   return spawn(result, options);
 };
 
-export const backQuote = spawn => (strings, ...args) => {
+const bqSpawn = spawn => (strings, ...args) => {
   if (verifyStrings(strings)) return impl(spawn, {})(strings, ...args);
   return impl(spawn, strings);
 };
 
-export default backQuote;
+export default bqSpawn;

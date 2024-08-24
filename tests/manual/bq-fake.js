@@ -1,11 +1,11 @@
 'use strict';
 
-import {backQuote} from 'dollar-shell/back-quote.js';
+import bqSpawn from 'dollar-shell/bq-spawn.js';
 
 const fakeSpawn = (command, options) => {
   console.log(command, options);
 };
 
-const $ = backQuote(fakeSpawn);
+const $ = bqSpawn(fakeSpawn);
 
 $(42)`${2} ls -l ${1} .`;
