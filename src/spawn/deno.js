@@ -72,8 +72,6 @@ class Subprocess {
 export const currentExecPath = () => Deno.execPath();
 export const runFileArgs = ['run'];
 
-export const isWindows = Deno.build.os === 'windows';
-
 export const cwd = () => Deno.cwd();
 
 const denoSpawn = (command, options = {}) => new Subprocess(command, options);

@@ -63,9 +63,6 @@ class Subprocess {
 export const currentExecPath = () => process.execPath;
 export const runFileArgs = ['run'];
 
-// Bun doesn't run on Windows as of now. It can run on WSL.
-export const isWindows = process.platform === 'win32';
-
 export const cwd = () => process.cwd();
 
 const bunSpawn = (command, options = {}) => new Subprocess(command, options);

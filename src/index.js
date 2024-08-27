@@ -2,6 +2,8 @@
 
 // load dependencies
 
+import {isWindows} from './utils.js';
+
 import bqSpawn from './bq-spawn.js';
 import bqShell from './bq-shell.js';
 
@@ -13,7 +15,7 @@ if (typeof Deno !== 'undefined') {
 } else {
   modSpawn = await import('./spawn/node.js');
 }
-export const {spawn, cwd, currentExecPath, runFileArgs, isWindows} = modSpawn;
+export const {spawn, cwd, currentExecPath, runFileArgs} = modSpawn;
 
 let modShell;
 if (isWindows) {
@@ -53,8 +55,7 @@ $.through = $.io = throughProcess;
 
 // define shell functions
 
-export const shell = bqShell(shellEscape, (command, options) => spawn(
-  buildShellCommand(options?.shellPath, options?.shellArgs, command), options));
+export const shell = bqShell(shellEscape, (command, options) => spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), options));
 
 export const $sh = bqShell(shellEscape, (command, options) => {
   const sp = spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), options);

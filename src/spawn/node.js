@@ -70,8 +70,6 @@ class Subprocess {
 export const currentExecPath = () => process.execPath;
 export const runFileArgs = [];
 
-export const isWindows = process.platform === 'win32';
-
 export const cwd = () => process.cwd();
 
 const nodeSpawn = (command, options = {}) => new Subprocess(command, options);
