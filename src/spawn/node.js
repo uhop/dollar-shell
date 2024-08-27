@@ -71,8 +71,6 @@ export const currentExecPath = () => process.execPath;
 export const runFileArgs = [];
 
 export const isWindows = process.platform === 'win32';
-export const currentShellPath = () => (isWindows ? process.env.ComSpec || 'cmd.exe' : process.env.SHELL || '/bin/sh');
-export const shellArgs = isWindows ? ['/d', '/s', '/c'] : ['-c'];
 
 export const cwd = () => process.cwd();
 

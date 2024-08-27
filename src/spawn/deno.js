@@ -73,8 +73,6 @@ export const currentExecPath = () => Deno.execPath();
 export const runFileArgs = ['run'];
 
 export const isWindows = Deno.build.os === 'windows';
-export const currentShellPath = () => (isWindows ? Deno.env.get('ComSpec') || 'cmd.exe' : Deno.env.get('SHELL') || '/bin/sh');
-export const shellArgs = isWindows ? ['/d', '/s', '/c'] : ['-c'];
 
 export const cwd = () => Deno.cwd();
 

@@ -13,7 +13,7 @@ if (typeof Deno !== 'undefined') {
 } else {
   modSpawn = await import('./spawn/node.js');
 }
-export const {spawn, cwd, currentExecPath, currentShellPath, runFileArgs, shellArgs, isWindows} = modSpawn;
+export const {spawn, cwd, currentExecPath, runFileArgs, isWindows} = modSpawn;
 
 let modShell;
 if (isWindows) {
@@ -21,7 +21,7 @@ if (isWindows) {
 } else {
   modShell = await import('./shell/unix.js');
 }
-export const {shellEscape} = modShell;
+export const {shellEscape, currentShellPath, buildShellCommand} = modShell;
 
 // define spawn functions
 
@@ -53,25 +53,26 @@ $.through = $.io = throughProcess;
 
 // define shell functions
 
-export const shell = bqShell(shellEscape, (command, options) => spawn([currentShellPath(), ...(options?.shellArgs || shellArgs), command], options));
+export const shell = bqShell(shellEscape, (command, options) => spawn(
+  buildShellCommand(options?.shellPath, options?.shellArgs, command), options));
 
 export const $sh = bqShell(shellEscape, (command, options) => {
-  const sp = spawn([currentShellPath(), ...(options?.shellArgs || shellArgs), command], options);
+  const sp = spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), options);
   return sp.exited.then(() => ({code: sp.exitCode, signal: sp.signalCode, killed: sp.killed}));
 });
 
 const fromShell = bqShell(shellEscape, (command, options) => {
-  const sp = spawn([currentShellPath(), ...(options?.shellArgs || shellArgs), command], Object.assign({}, options, {stdout: 'pipe'}));
+  const sp = spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), Object.assign({}, options, {stdout: 'pipe'}));
   return sp.stdout;
 });
 
 const toShell = bqShell(shellEscape, (command, options) => {
-  const sp = spawn([currentShellPath(), ...(options?.shellArgs || shellArgs), command], Object.assign({}, options, {stdin: 'pipe'}));
+  const sp = spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), Object.assign({}, options, {stdin: 'pipe'}));
   return sp.stdin;
 });
 
 const throughShell = bqShell(shellEscape, (command, options) => {
-  const sp = spawn([currentShellPath(), ...(options?.shellArgs || shellArgs), command], Object.assign({}, options, {stdin: 'pipe', stdout: 'pipe'}));
+  const sp = spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), Object.assign({}, options, {stdin: 'pipe', stdout: 'pipe'}));
   return {readable: sp.stdout, writable: sp.stdin};
 });
 
