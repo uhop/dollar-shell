@@ -15,3 +15,5 @@ if (typeof Deno !== 'undefined') {
   isAndroid = process.platform === 'android';
 }
 export {getEnv, isWindows, isAndroid};
+
+export const verifyStrings = strings => Array.isArray(strings) && strings.every(s => typeof s === 'string');
