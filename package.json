@@ -1,9 +1,10 @@
 {
   "name": "dollar-shell",
-  "description": "Run shell commands with ease in Node, Deno, Bun",
+  "description": "Run shell commands and use them in streams with ease in Node, Deno, Bun",
   "version": "1.0.0",
   "type": "module",
   "main": "src/index.js",
+  "types": "index.d.ts",
   "exports": {
     ".": "./src/index.js",
     "./*": "./src/*"
@@ -13,7 +14,7 @@
   },
   "files": [
     "/src",
-    "/index.js",
+    "/index.d.ts",
     "LICENSE",
     "README.md"
   ],
@@ -27,16 +28,25 @@
   "homepage": "https://github.com/uhop/list-toolkit#readme",
   "keywords": [
     "shell",
-    "$"
+    "$",
+    "dollar",
+    "stream"
   ],
   "author": "Eugene Lazutkin <eugene.lazutkin@gmail.com> (http://www.lazutkin.com/)",
+  "funding": "https://github.com/sponsors/uhop",
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "tape-six": "^0.9.6"
+    "@types/node": "^22.5.1",
+    "tape-six": "^0.9.6",
+    "tsd": "^0.31.1",
+    "typescript": "^5.5.4"
   },
   "tape6": {
     "tests": [
       "/tests/test-*.*js"
     ]
+  },
+  "tsd": {
+    "directory": "ts-tests"
   }
 }
