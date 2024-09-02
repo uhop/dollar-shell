@@ -13,4 +13,9 @@ import $ from 'dollar-shell';
 
 // await $({stdout: 'inherit'})`ls -l .`;
 
-$.from`ls -l .`.pipeThrough($.io`grep LIC`).pipeTo($.to({stdout: 'inherit'})`wc`);
+// $.from`ls -l .`.pipeThrough($.io`grep LIC`).pipeTo($.to({stdout: 'inherit'})`wc`);
+
+$.from`ls -l .`
+  .pipeThrough($.io`grep LIC`)
+  .pipeThrough($.io`wc`)
+  .pipeTo($.to({stdout: 'inherit'})`tee output.txt`);

@@ -2,8 +2,8 @@
 
 import $ from 'dollar-shell';
 
-import process from 'node:process';
-import {Writable} from 'node:stream';
+// import process from 'node:process';
+// import {Writable} from 'node:stream';
 
 // Bun does not implement `Writable.toWeb()` yet
 // and it doesn't provide a simple way to write to `stdout` using web streams
@@ -16,4 +16,9 @@ import {Writable} from 'node:stream';
 
 // await $({stdout: 'inherit'})`ls -l .`;
 
-$.from`ls -l .`.pipeThrough($.io`grep LIC`).pipeTo($.to({stdout: 'inherit'})`wc`);
+// $.from`ls -l .`.pipeThrough($.io`grep LIC`).pipeTo($.to({stdout: 'inherit'})`wc`);
+
+$.from`ls -l .`
+  .pipeThrough($.io`grep LIC`)
+  .pipeThrough($.io`wc`)
+  .pipeTo($.to({stdout: 'inherit'})`tee output.txt`);
