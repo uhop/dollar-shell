@@ -168,25 +168,27 @@ returns a tag function that can be used as a template string.
 This function is similar to `$$` but it uses different default spawn options related to streams and
 different (simpler) return values:
 
-* `$` &mdash; returns a promise that resolves to an object with the following properties:
+* `$` &mdash; all streams are ignored. It returns a promise that resolves to an object with the following properties:
   * `code` &mdash; the exit code of the process. See `spawn()`'s `exitCode` above for more details.
   * `signal` &mdash; the signal code of the process. See `spawn()`'s `signalCode` above for more details.
   * `killed` &mdash; a boolean. It is `true` when the process has been killed and `false` otherwise. See `spawn()`'s `killed` above for more details.
-* `$.from` &mdash; returns `stdout` of the process. It can be used to process the output. See `spawn()`'s `stdout` above for more details.
-* `$.to` &mdash; returns `stdin` of the process. It can be used to pipe the input. See `spawn()`'s `stdin` above for more details.
-* `$.io` AKA `$.through` &mdash; returns `stdin` and `stdout` of the process as a `{readable, writable}` pair. It can be used to create a pipeline where an external process can be used as a transform step.
+* `$.from` &mdash; sets `stdout` to `pipe` and returns `stdout` of the process. It can be used to process the output. See `spawn()`'s `stdout` above for more details.
+* `$.to` &mdash; sets `stdin` to `pipe` and returns `stdin` of the process. It can be used to pipe the input. See `spawn()`'s `stdin` above for more details.
+* `$.io` AKA `$.through` &mdash; sets `stdin` and `stdout` to `pipe` and returns `stdin` and `stdout` of the process as a `{readable, writable}` pair. It can be used to create a pipeline where an external process can be used as a transform step.
 
 ### `$sh`
 
 This function mirrors `$` but runs the command with the shell. It takes an options object that extends
 the spawn options with the following properties:
 
-* `shellPath` &mdash; the path to the shell. On Unix-like systems it defaults to the value of
+* `shellPath` &mdash; the path to the shell.
+  * On Unix-like systems it defaults to the value of
 the `SHELL` environment variable if specified. Otherwise it is `'/bin/sh'` or `'/system/bin/sh'` on Android.
-On Windows it defaults to the value of the `ComSpec` environment variable if specified.
+  * On Windows it defaults to the value of the `ComSpec` environment variable if specified.
 Otherwise it is `cmd.exe`.
 * `shellArgs` &mdash; an array of strings that are passed to the shell as arguments.
-On Unix-like systems it defaults to `['-c']`. On Windows it defaults to `['/d', '/s', '/c']` for `cmd.exe`
+  * On Unix-like systems it defaults to `['-c']`.
+  * On Windows it defaults to `['/d', '/s', '/c']` for `cmd.exe`
 or `['-e']` for `pwsh.exe` or `powershell.exe`.
 
 The rest is identical to `$`: `$sh`, `$sh.from`, `$sh.to` and `$sh.io`/`$sh.through`.
