@@ -1,4 +1,4 @@
-export type SpawnStreamState = 'piped' | 'ignore' | 'inherit' | 'pipe' | null;
+export type SpawnStreamState = 'pipe' | 'ignore' | 'inherit' | 'piped' | null;
 
 export interface SpawnOptions {
   cwd?: string;
