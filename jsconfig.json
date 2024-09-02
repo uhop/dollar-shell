@@ -1,7 +1,0 @@
-{
-  "compilerOptions": {
-    "paths": {
-      "dollar-shell": ["./src/index.js"]
-    }
-  }
-}
