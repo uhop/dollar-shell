@@ -3,14 +3,15 @@
   "description": "Run shell commands and use them in streams with ease in Node, Deno, Bun",
   "version": "1.0.0",
   "type": "module",
-  "main": "src/index.js",
-  "types": "index.d.ts",
+  "main": "./src/index.js",
+  "types": "./src/index.d.ts",
   "exports": {
     ".": "./src/index.js",
     "./*": "./src/*"
   },
   "scripts": {
-    "test": "tape6 --flags FO"
+    "test": "tape6 --flags FO",
+    "ts-test": "tsc --noEmit"
   },
   "files": [
     "/src",
@@ -36,17 +37,12 @@
   "funding": "https://github.com/sponsors/uhop",
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "@types/node": "^22.5.1",
     "tape-six": "^0.9.6",
-    "tsd": "^0.31.1",
     "typescript": "^5.5.4"
   },
   "tape6": {
     "tests": [
       "/tests/test-*.*js"
     ]
-  },
-  "tsd": {
-    "directory": "ts-tests"
   }
 }

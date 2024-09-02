@@ -1,6 +1,6 @@
 'use strict';
 
-import {$sh} from '../src/index.js';
+import {$sh} from 'dollar-shell';
 
 // const result = await $sh({shellPath: 'pwsh.exe', stdout: 'inherit', stderr: 'inherit'})`echo "${`hello  \\wor"ld`}  ${'two   three'}"`;
 // const result = await $sh({shellPath: 'pwsh.exe', stdout: 'inherit', stderr: 'inherit'})`echo "hello'  \\wor\`\"ld two   three"`;

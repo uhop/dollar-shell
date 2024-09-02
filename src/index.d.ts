@@ -1,11 +1,11 @@
-type SpawnStreamStatus = 'piped' | 'ignore' | 'inherit' | 'pipe' | null;
+type SpawnStreamState = 'piped' | 'ignore' | 'inherit' | 'pipe' | null;
 
 interface SpawnOptions {
   cwd?: string;
   env?: {[key: string]: string | undefined};
-  stdin?: SpawnStreamStatus;
-  stdout?: SpawnStreamStatus;
-  stderr?: SpawnStreamStatus;
+  stdin?: SpawnStreamState;
+  stdout?: SpawnStreamState;
+  stderr?: SpawnStreamState;
 }
 
 interface Subprocess {
@@ -22,24 +22,22 @@ interface Subprocess {
   kill(): void;
 }
 
-export function spawn(command: string[], options?: SpawnOptions): Subprocess;
+export declare function spawn(command: string[], options?: SpawnOptions): Subprocess;
 
-export function cwd(): string;
-export function currentExecPath(): string;
-export const runFileArgs: string[];
+export declare function cwd(): string;
+export declare function currentExecPath(): string;
+export declare const runFileArgs: string[];
 
 interface shellEscapeOptions {
   shell?: string;
 }
 
-export function shellEscape(s: {toString(): string}, options?: shellEscapeOptions): string;
+export declare function shellEscape(s: {toString(): string}, options?: shellEscapeOptions): string;
 
-export function currentShellPath(): string;
-export function buildShellCommand(shell: string | undefined, args: string[] | undefined, command: string): string[];
+export declare function currentShellPath(): string;
+export declare function buildShellCommand(shell: string | undefined, args: string[] | undefined, command: string): string[];
 
-interface backticks<R> {
-  (strings: TemplateStringsArray, ...args: unknown[]): R;
-}
+type backticks<R> = (strings: TemplateStringsArray, ...args: unknown[]) => R;
 
 interface Dollar<R, O = SpawnOptions> extends backticks<R> {
   (options: O): backticks<R>;
@@ -65,14 +63,14 @@ interface DollarImpl extends Dollar<Promise<DollarResult>> {
   io: Dollar<DuplexPair>;
 }
 
-export const $: DollarImpl;
+export declare const $: DollarImpl;
 
 interface ShellOptions extends SpawnOptions {
   shellPath?: string;
   shellArgs?: string[];
 }
 
-export const shell: Dollar<Subprocess, ShellOptions>;
+export declare const shell: Dollar<Subprocess, ShellOptions>;
 
 interface ShellImpl extends Dollar<Promise<DollarResult>, ShellOptions> {
   from: Dollar<ReadableStream<string>, ShellOptions>;
@@ -81,6 +79,6 @@ interface ShellImpl extends Dollar<Promise<DollarResult>, ShellOptions> {
   io: Dollar<DuplexPair, ShellOptions>;
 }
 
-export const $sh: ShellImpl;
+export declare const $sh: ShellImpl;
 
 export default $;

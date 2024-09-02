@@ -1,6 +1,6 @@
 'use strict';
 
-import $ from '../src/index.js';
+import $ from 'dollar-shell';
 
 const result = await $({stdout: 'inherit'})`ls -l ${'.'}`;
 

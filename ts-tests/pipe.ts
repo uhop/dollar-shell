@@ -1,9 +1,6 @@
 'use strict';
 
-import $ from '../src/index.js';
-
-import process from 'node:process';
-import {Writable} from 'node:stream';
+import $ from 'dollar-shell';
 
 // Bun does not implement `Writable.toWeb()` yet
 // and it doesn't provide a simple way to write to `stdout` using web streams

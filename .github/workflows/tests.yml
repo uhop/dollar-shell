@@ -30,3 +30,4 @@ jobs:
         npm run prepareDist --if-present
         npm run build --if-present
         npm test
+        npm run ts-test --if-present
