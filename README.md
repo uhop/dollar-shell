@@ -91,6 +91,8 @@ Additional information can be found in the [wiki](https://github.com/uhop/dollar
 
 ### `spawn()`
 
+Spawn a process with advanced ways to configure and control it.
+
 The signature: `spawn(command, options)`
 
 Arguments:
@@ -143,20 +145,22 @@ sp.killed === true;
 
 ### `$$`
 
+The same as `spawn()`, but it returns a tag function that can be used as a template string.
+
 The signatures:
 
 ```js
-const sp1 = $$`ls -l ${myFile}`;  // runs a command ignoring streams
+const sp1 = $$`ls -l ${myFile}`;  // runs a command the defaults
 
-const sp2 = $$(options)`ls -l .`; // runs a command ignoring streams
-                                  // with custom spawn options
+const sp2 = $$(options)`ls -l .`; // runs a command with custom spawn options
 
 const $tag = $$(options);         // returns a tag function
 const sp3 = $tag`ls -l .`;        // runs a command with custom spawn options
 ```
 
-This function is effectively a helper for `spawn()`. It splits a strings into an array
-of string arguments encoding inserted values if necessary.
+This function is effectively a helper for `spawn()`. It parses the template string
+into an array of string arguments. Each inserted value is included
+as a separate argument if it was surrounded by whitespaces.
 
 The second signature is used to run a command with custom spawn options. See `spawn()` above for more details.
 
