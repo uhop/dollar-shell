@@ -86,7 +86,7 @@ npm i --save dollar-shell
 
 ## Documentation
 
-Below is the documentation for the main components: `spawn()`, `$` and `$sh`.
+Below is the documentation for the main components: `spawn()`, `$$`, `$` and `$sh`.
 Additional information can be found in the [wiki](https://github.com/uhop/dollar-shell/wiki).
 
 ### `spawn()`
