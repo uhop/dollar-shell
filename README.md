@@ -73,7 +73,7 @@ chain([
   $.from`ls -l .`,
   $.io`grep LICENSE`,
   $.io`wc`
-  lines,
+  lines(),
   line => console.log(line)
 ]);
 ```
