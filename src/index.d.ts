@@ -29,7 +29,7 @@ export declare function currentExecPath(): string;
 export declare const runFileArgs: string[];
 
 export interface ShellEscapeOptions {
-  shell?: string;
+  shellPath?: string;
 }
 
 export declare function shellEscape(s: {toString(): string}, options?: ShellEscapeOptions): string;
