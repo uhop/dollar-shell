@@ -1,6 +1,6 @@
 {
   "name": "dollar-shell",
-  "description": "Run shell commands and use them in streams with ease in Node, Deno, Bun. Tiny, simple, no dependency module.",
+  "description": "Run shell commands and use them in streams with ease in Node, Deno, Bun. Tiny, simple, no dependency package.",
   "version": "1.0.0",
   "type": "module",
   "main": "./src/index.js",
