@@ -71,6 +71,7 @@ export interface ShellOptions extends SpawnOptions {
 }
 
 export declare const shell: Dollar<Subprocess, ShellOptions>;
+export declare const sh = shell;
 
 interface ShellImpl<R = string> extends Dollar<Promise<DollarResult>, ShellOptions> {
   from: Dollar<ReadableStream<R>, ShellOptions>;

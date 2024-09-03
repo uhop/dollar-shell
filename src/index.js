@@ -58,6 +58,7 @@ $.through = $.io = throughProcess;
 // define shell functions
 
 export const shell = bqShell(shellEscape, (command, options) => spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), options));
+export {shell as sh};
 
 export const $sh = bqShell(shellEscape, (command, options) => {
   const sp = spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), options);
