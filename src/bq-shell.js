@@ -15,7 +15,7 @@ const impl =
       if (i >= args.length) continue;
       const arg = String(args[i]);
       if (!arg) continue;
-      result.push(shellEscape(arg));
+      result.push(shellEscape(arg, options));
     }
 
     return shell(result.join(''), options);
