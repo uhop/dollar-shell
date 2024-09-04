@@ -29,7 +29,7 @@ class Subprocess {
     this.killed = false;
     this.finished = false;
 
-    const spawnOptions = {stdio: ['ignore', 'ignore', 'ignore']};
+    const spawnOptions = {stdio: ['ignore', 'ignore', 'ignore'], windowsVerbatimArguments: true};
     options.cwd && (spawnOptions.cwd = options.cwd);
     options.env && (spawnOptions.env = options.env);
 
