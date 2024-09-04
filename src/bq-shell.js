@@ -21,11 +21,13 @@ const impl =
     return shell(result.join(''), options);
   };
 
-const bqShell =
-  (shellEscape, shell) =>
-  (strings, ...args) => {
-    if (verifyStrings(strings)) return impl(shellEscape, shell, {})(strings, ...args);
-    return impl(shellEscape, shell, strings);
+const bqShell = (shellEscape, shell, options = {}) => {
+  const bq = (strings, ...args) => {
+    if (verifyStrings(strings)) return impl(shellEscape, shell, options)(strings, ...args);
+    Object.assign(options, strings);
+    return bq;
   };
+  return bq;
+};
 
 export default bqShell;
