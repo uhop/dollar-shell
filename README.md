@@ -204,4 +204,5 @@ BSD-3-Clause
 
 ## Release History
 
+- 1.0.1 *Technical release: more tests, better documentation.*
 - 1.0.0 *The initial release.*
