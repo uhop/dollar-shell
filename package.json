@@ -1,7 +1,7 @@
 {
   "name": "dollar-shell",
   "description": "Run shell commands and use them in streams with ease in Node, Deno, Bun. Tiny, simple, no dependency package.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
@@ -20,12 +20,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/uhop/list-toolkit.git"
+    "url": "git+https://github.com/uhop/dollar-shell.git"
   },
   "bugs": {
-    "url": "https://github.com/uhop/list-toolkit/issues"
+    "url": "https://github.com/uhop/dollar-shell/issues"
   },
-  "homepage": "https://github.com/uhop/list-toolkit#readme",
+  "homepage": "https://github.com/uhop/dollar-shell#readme",
   "keywords": [
     "shell",
     "spawn",
