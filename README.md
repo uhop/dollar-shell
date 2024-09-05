@@ -72,7 +72,8 @@ import lines from 'stream-chain/utils/lines.js';
 chain([
   $.from`ls -l .`,
   $.io`grep LICENSE`,
-  $.io`wc`
+  $.io`wc`,
+  new TextDecoderStream(),
   lines(),
   line => console.log(line)
 ]);
