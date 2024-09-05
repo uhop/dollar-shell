@@ -1,6 +1,6 @@
 'use strict';
 
-import {verifyStrings} from './utils.js';
+import {isRawValue, verifyStrings} from './utils.js';
 
 const impl =
   (shellEscape, shell, options) =>
@@ -13,9 +13,13 @@ const impl =
 
       // process an argument
       if (i >= args.length) continue;
-      const arg = String(args[i]);
-      if (!arg) continue;
-      result.push(shellEscape(arg, options));
+      if (isRawValue(args[i])) {
+        const arg = String(getRawValue(args[i]));
+        arg && result.push(arg);
+      } else {
+        const arg = String(args[i]);
+        arg && result.push(shellEscape(arg, options));
+      }
     }
 
     return shell(result.join(''), options);

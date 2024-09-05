@@ -28,6 +28,8 @@ export declare function cwd(): string;
 export declare function currentExecPath(): string;
 export declare const runFileArgs: string[];
 
+export declare function raw(value: unknown): object;
+
 export interface ShellEscapeOptions {
   shellPath?: string;
 }
@@ -40,7 +42,7 @@ export declare function buildShellCommand(shell: string | undefined, args: strin
 type Backticks<R> = (strings: TemplateStringsArray, ...args: unknown[]) => R;
 
 interface Dollar<R, O = SpawnOptions> extends Backticks<R> {
-  (options: O): Backticks<R>;
+  (options: O): Dollar<R, O>;
 }
 
 export declare const $$: Dollar<Subprocess>;

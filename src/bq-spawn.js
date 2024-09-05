@@ -1,6 +1,6 @@
 'use strict';
 
-import {verifyStrings} from './utils.js';
+import {verifyStrings, isRawValue, getRawValue} from './utils.js';
 
 const impl =
   (spawn, options) =>
@@ -37,7 +37,7 @@ const impl =
 
       if (i >= args.length) continue;
 
-      const arg = String(args[i]);
+      const arg = String(isRawValue(args[i]) ? getRawValue(args[i]) : args[i]);
       if (!arg) continue;
 
       if (previousSpace) {

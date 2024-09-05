@@ -23,7 +23,13 @@ export const toBase64 = s => {
   //   bytes = Array.from(buf, b => String.fromCharCode(b >> 8) + String.fromCharCode(b & 0xFF)).join('');
   const bytes = Array.from(s, c => {
     const code = c.charCodeAt(0);
-    return String.fromCharCode(code & 0xFF) + String.fromCharCode((code >> 8) & 0xFF);
+    return String.fromCharCode(code & 0xff) + String.fromCharCode((code >> 8) & 0xff);
   }).join('');
   return btoa(bytes);
 };
+
+const rawValueSymbol = Symbol.for('object-stream.raw-value');
+
+export const raw = value => ({[rawValueSymbol]: value});
+export const isRawValue = value => value && typeof value === 'object' && rawValueSymbol in value;
+export const getRawValue = value => value[rawValueSymbol];

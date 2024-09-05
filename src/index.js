@@ -4,7 +4,7 @@
 
 // load dependencies
 
-import {isWindows} from './utils.js';
+export {isWindows, raw} from './utils.js';
 
 import bqSpawn from './bq-spawn.js';
 import bqShell from './bq-shell.js';
