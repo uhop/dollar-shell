@@ -16,7 +16,8 @@ const mapControls = {
   '\x00': '`0',
   '\x07': '`a',
   '\x1B': '`e',
-  '\x0B': '`v'
+  '\x0B': '`v',
+  '"': '`\\"'
 };
 
 const escapePowerShell = (_, controls, nonAlphas, theRest) => {
@@ -41,7 +42,7 @@ export const shellEscape = (s, options, isFirst) => {
     if (!/[\"\\]/.test(s)) return `"${s}"`;
 
     let quoteHit = true;
-    const result = (
+    const result =
       '"' +
       [...s]
         .map(c => {
@@ -54,11 +55,10 @@ export const shellEscape = (s, options, isFirst) => {
           return c;
         })
         .join('') +
-      '"'
-    );
+      '"';
     return isFirst ? result.replace(/(0xFF)|([\W])|(\w+)/g, escapeCmd) : result;
   }
-  if (isPwsh(shell)) return s.replace(/([\t\r\n\f\x00\x1B\x07\x08\x0B])|([\W])|(\w+)/g, escapePowerShell);
+  if (isPwsh(shell)) return s.replace(/([\t\r\n\f\x00\x1B\x07\x08\x0B\"])|([\W])|(\w+)/g, escapePowerShell);
   return s;
 };
 
