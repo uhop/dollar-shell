@@ -8,3 +8,7 @@ const $pwsh = $cmd({shellPath: 'pwsh.exe'});
 console.log(await $pwsh`echo ${'12""3'}`);
 console.log(await $pwsh`echo ${`hello  \\wor"ld`}`);
 console.log(await $pwsh`${currentExecPath()} ${'tests\\manual\\argv.js'} ${`hello  \\wor"ld`}`);
+
+// tests how pwsh handles escaped arguments
+console.log(await $pwsh`echo 1 2 3`);
+console.log(await $pwsh`echo ${'1 2 3'}`);
