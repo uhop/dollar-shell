@@ -7,20 +7,43 @@ export const currentShellPath = () => getEnv('ComSpec') || 'cmd.exe';
 const isCmd = s => /^(?:.*\\)?cmd(?:\.exe)?$/i.test(s);
 const isPwsh = s => /^(?:.*\\)?(?:pwsh|powershell)(?:\.exe)?$/i.test(s);
 
+const mapControls = {
+  '\b': '`b',
+  '\t': '`t',
+  '\n': '`n',
+  '\f': '`f',
+  '\r': '`r',
+  '\x00': '`0',
+  '\x07': '`a',
+  '\x1B': '`e',
+  '\x0B': '`v'
+};
+
+const escapePowerShell = (_, controls, nonAlphas, theRest) => {
+  if (controls) return mapControls[controls] || '';
+  if (nonAlphas) return '`' + nonAlphas;
+  return theRest;
+};
+
+const escapeCmd = (_, nonAlphas, theRest) => {
+  if (nonAlphas) return '^' + nonAlphas;
+  return theRest;
+};
+
 export const shellEscape = (s, options) => {
   s = String(s);
-  const shell = options?.shell || currentShellPath();
-  if (isCmd(shell)) return s.replace(/[\\'"\^%]|(?:\r?\n)/g, '^$&');
-  // if (isPwsh(shell)) return '"' + s.replace(/"/g, "`\"") + '"';
+  const shell = options?.shellPath || currentShellPath();
+  // if (isCmd(shell)) return s.replace(/./g, '^$&');
+  if (isCmd(shell)) return s.replace(/([\W])|(.+)/g, escapeCmd);
+  if (isPwsh(shell)) return s.replace(/([\t\r\n\f\x00\x1B\x07\x08\x0B])|([\W])|(.+)/g, escapePowerShell);
   return s;
 };
 
 export const buildShellCommand = (shell, args, command) => {
   shell ||= currentShellPath();
-  // derived from https://github.com/nodejs/node/blob/43f699d4d2799cfc17cbcad5770e1889075d5dbe/lib/child_process.js#L620
   if (isCmd(shell)) return [shell, ...(args || ['/d', '/s', '/c']), command];
   if (isPwsh(shell)) {
-    args ||= ['-e'];
+    args ||= ['-c'];
     if (args.includes('-e')) command = toBase64(command);
     return [shell, ...args, command];
   }
