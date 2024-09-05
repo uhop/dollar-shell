@@ -15,7 +15,6 @@
   },
   "files": [
     "/src",
-    "/index.d.ts",
     "LICENSE",
     "README.md"
   ],
@@ -29,6 +28,7 @@
   "homepage": "https://github.com/uhop/list-toolkit#readme",
   "keywords": [
     "shell",
+    "spawn",
     "$",
     "dollar",
     "stream"
