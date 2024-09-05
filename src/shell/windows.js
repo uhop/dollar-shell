@@ -10,9 +10,9 @@ const isPwsh = s => /^(?:.*\\)?(?:pwsh|powershell)(?:\.exe)?$/i.test(s);
 const mapControls = {
   '\b': '`b',
   '\t': '`t',
+  '\r': '`r',
   '\n': '`n',
   '\f': '`f',
-  '\r': '`r',
   '\x00': '`0',
   '\x07': '`a',
   '\x1B': '`e',
@@ -25,27 +25,52 @@ const escapePowerShell = (_, controls, nonAlphas, theRest) => {
   return theRest;
 };
 
-const escapeCmd = (_, nonAlphas, theRest) => {
+const escapeCmd = (_, doubleQuote, nonAlphas, theRest) => {
+  if (doubleQuote) return '""';
   if (nonAlphas) return '^' + nonAlphas;
   return theRest;
 };
 
-export const shellEscape = (s, options) => {
+export const shellEscape = (s, options, isFirst) => {
   s = String(s);
   const shell = options?.shellPath || currentShellPath();
-  // if (isCmd(shell)) return s.replace(/./g, '^$&');
-  if (isCmd(shell)) return s.replace(/([\W])|(.+)/g, escapeCmd);
-  if (isPwsh(shell)) return s.replace(/([\t\r\n\f\x00\x1B\x07\x08\x0B])|([\W])|(.+)/g, escapePowerShell);
+  if (isCmd(shell)) {
+    // based on https://github.com/nodejs/node/blob/dc74f17f6c37b1bb2d675216066238f33790ed29/deps/uv/src/win/process.c#L449
+    if (!s) return '""';
+    if (!/\s|[\t\"]/.test(s)) return s;
+    if (!/[\"\\]/.test(s)) return `"${s}"`;
+
+    let quoteHit = true;
+    const result = (
+      '"' +
+      [...s]
+        .map(c => {
+          if (quoteHit && c === '\\') return '\\\\';
+          if (c === '"') {
+            quoteHit = true;
+            return '\\"';
+          }
+          quoteHit = false;
+          return c;
+        })
+        .join('') +
+      '"'
+    );
+    return isFirst ? result.replace(/(0xFF)|([\W])|(\w+)/g, escapeCmd) : result;
+  }
+  if (isPwsh(shell)) return s.replace(/([\t\r\n\f\x00\x1B\x07\x08\x0B])|([\W])|(\w+)/g, escapePowerShell);
   return s;
 };
 
 export const buildShellCommand = (shell, args, command) => {
   shell ||= currentShellPath();
-  if (isCmd(shell)) return [shell, ...(args || ['/d', '/s', '/c']), command];
-  if (isPwsh(shell)) {
+  if (isCmd(shell)) {
+    args ||= ['/d', '/s', '/c'];
+  } else if (isPwsh(shell)) {
     args ||= ['-c'];
     if (args.includes('-e')) command = toBase64(command);
-    return [shell, ...args, command];
+  } else {
+    args ||= ['-c'];
   }
-  return [shell, ...(args || ['-c']), command];
+  return [shell, ...args, command];
 };

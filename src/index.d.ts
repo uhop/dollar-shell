@@ -29,6 +29,7 @@ export declare function currentExecPath(): string;
 export declare const runFileArgs: string[];
 
 export declare function raw(value: unknown): object;
+export declare function winCmdEscape(value: unknown): object | string;
 
 export interface ShellEscapeOptions {
   shellPath?: string;

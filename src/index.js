@@ -4,10 +4,12 @@
 
 // load dependencies
 
-export {isWindows, raw} from './utils.js';
+import {isWindows, raw, winCmdEscape} from './utils.js';
 
 import bqSpawn from './bq-spawn.js';
 import bqShell from './bq-shell.js';
+
+export {isWindows, raw, winCmdEscape};
 
 let modSpawn;
 if (typeof Deno !== 'undefined') {

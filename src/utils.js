@@ -33,3 +33,5 @@ const rawValueSymbol = Symbol.for('object-stream.raw-value');
 export const raw = value => ({[rawValueSymbol]: value});
 export const isRawValue = value => value && typeof value === 'object' && rawValueSymbol in value;
 export const getRawValue = value => value[rawValueSymbol];
+
+export const winCmdEscape = value => isWindows ? raw(String(value).replace(/./g, '^$&')) : String(value);

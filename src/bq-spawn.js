@@ -55,13 +55,11 @@ const impl =
     return spawn(result, options);
   };
 
-const bqSpawn = (spawn, options = {}) => {
-  const bq = (strings, ...args) => {
+const bqSpawn =
+  (spawn, options = {}) =>
+  (strings, ...args) => {
     if (verifyStrings(strings)) return impl(spawn, options)(strings, ...args);
-    Object.assign(options, strings);
-    return bq;
+    return bqSpawn(spawn, {...options, ...strings});
   };
-  return bq;
-};
 
 export default bqSpawn;
