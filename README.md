@@ -3,7 +3,7 @@
 [npm-image]:      https://img.shields.io/npm/v/dollar-shell.svg
 [npm-url]:        https://npmjs.org/package/dollar-shell
 
-`dollar-shell` is a micro-library for running shell commands and using them in streams with ease in Node, Deno, Bun. It is a tiny, simple, no dependency module with TypeScript typings.
+`dollar-shell` is a micro-library for running shell commands and using them in streams with ease in Node, Deno, Bun. It is a tiny, simple, no dependency package with TypeScript typings.
 
 The idea is to run OS/shell commands and/or use them in stream pipelines as sources, sinks,
 and transformation steps using [web streams](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API).
