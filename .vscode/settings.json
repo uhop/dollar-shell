@@ -3,6 +3,7 @@
         "Deno",
         "Lazutkin",
         "Pwsh",
+        "typeof",
         "whitespaces"
     ]
 }
