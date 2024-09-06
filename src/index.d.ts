@@ -147,10 +147,13 @@ export declare function buildShellCommand(shell: string | undefined, args: strin
 type Backticks<R> = (strings: TemplateStringsArray, ...args: unknown[]) => R;
 
 /**
- * $ (tag) function. It can be used as a tag function for a template string.
+ * The type of the $ (tag) function. It can be used as a tag function for a template string.
  * Or it can take an options object and return self with updated defaults.
  */
 interface Dollar<R, O = SpawnOptions> extends Backticks<R> {
+  /**
+   * The function can take an options object and return self with updated defaults.
+   */
   (options: O): Dollar<R, O>;
 }
 
@@ -193,7 +196,7 @@ interface DuplexPair<R = any> {
 }
 
 /**
- * The type of the $ function.
+ * The type of the {@link $} function.
  */
 interface DollarImpl<R = any> extends Dollar<Promise<DollarResult>> {
   /**
@@ -216,9 +219,9 @@ interface DollarImpl<R = any> extends Dollar<Promise<DollarResult>> {
    * The tag function that can be used as a template string.
    * It can take an options object and return self with updated defaults.
    *
-   * The tag function returns the `stdin` and `stdout` streams of the process as a `DuplexPair` .
+   * The tag function returns the `stdin` and `stdout` streams of the process as a {@link DuplexPair}.
    *
-   * It is an alias of `$.io`.
+   * It is an alias of {@link $.io}.
    */
   through: Dollar<DuplexPair<R>>;
 
@@ -226,15 +229,15 @@ interface DollarImpl<R = any> extends Dollar<Promise<DollarResult>> {
    * The tag function that can be used as a template string.
    * It can take an options object and return self with updated defaults.
    *
-   * The tag function returns the `stdin` and `stdout` streams of the process as a `DuplexPair` .
+   * The tag function returns the `stdin` and `stdout` streams of the process as a {@link DuplexPair}.
    *
-   * It is an alias of `$.through`.
+   * It is an alias of {@link $.through}.
    */
   io: Dollar<DuplexPair<R>>;
 }
 
 /**
- * The $ function with custom properties (`from`, `to`, `through`, `io`).
+ * The $ function with custom properties ({@link $.from}, {@link $.to}, {@link $.through}, {@link $.io}).
  * When used as a tag function with a template string it starts a new process and returns
  * a promise with the simplified result (exit code, signal code, and the "killed" status).
  * Or it can take an options object and return self with updated defaults.
@@ -298,9 +301,9 @@ interface ShellImpl<R = any> extends Dollar<Promise<DollarResult>, ShellOptions>
    * The tag function that can be used as a template string.
    * It can take an options object and return self with updated defaults.
    *
-   * The tag function runs a shell command and returns the `stdin` and `stdout` streams of the process as a `DuplexPair` .
+   * The tag function runs a shell command and returns the `stdin` and `stdout` streams of the process as a {@link DuplexPair}.
    *
-   * It is an alias of `$.io`.
+   * It is an alias of {@link $sh.io}.
    */
   through: Dollar<DuplexPair<R>, ShellOptions>;
 
@@ -308,15 +311,15 @@ interface ShellImpl<R = any> extends Dollar<Promise<DollarResult>, ShellOptions>
    * The tag function that can be used as a template string.
    * It can take an options object and return self with updated defaults.
    *
-   * The tag function runs a shell command and returns the `stdin` and `stdout` streams of the process as a `DuplexPair` .
+   * The tag function runs a shell command and returns the `stdin` and `stdout` streams of the process as a {@link DuplexPair}.
    *
-   * It is an alias of `$.through`.
+   * It is an alias of {@link $sh.through}.
    */
   io: Dollar<DuplexPair<R>, ShellOptions>;
 }
 
 /**
- * The $sh function with custom properties (`from`, `to`, `through`, `io`).
+ * The $sh function with custom properties ({@link $sh.from}, {@link $sh.to}, {@link $sh.through}, {@link $sh.io}).
  *
  * When used as a tag function with a template string it starts a new shell process and returns
  * a promise with the simplified result (exit code, signal code, and the "killed" status).
