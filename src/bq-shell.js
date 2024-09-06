@@ -25,11 +25,12 @@ const impl =
     return shell(result.join(''), options);
   };
 
-const bqShell =
-  (shellEscape, shell, options = {}) =>
-  (strings, ...args) => {
+const bqShell = (shellEscape, shell, options = {}) => {
+  const bq = (strings, ...args) => {
     if (verifyStrings(strings)) return impl(shellEscape, shell, options)(strings, ...args);
-    return bqShell(shellEscape, shell, {...options, ...strings});
+    return Object.assign(bqShell(shellEscape, shell, {...options, ...strings}), bq);
   };
+  return bq;
+};
 
 export default bqShell;
