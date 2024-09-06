@@ -204,6 +204,7 @@ BSD-3-Clause
 
 ## Release History
 
+- 1.0.3 *Added TSDoc comments, improved docs, fixed typos, added the missing copying of properties.*
 - 1.0.2 *Technical release: fixed references in the package file.*
 - 1.0.1 *Technical release: more tests, better documentation.*
 - 1.0.0 *The initial release.*
