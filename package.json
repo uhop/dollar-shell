@@ -6,12 +6,15 @@
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
   "exports": {
-    ".": "./src/index.js",
+    ".": {
+      "types": "./src/index.d.ts",
+      "default": "./src/index.js"
+    },
     "./*": "./src/*"
   },
   "scripts": {
     "test": "tape6 --flags FO",
-    "ts-test": "tsc --noEmit"
+    "ts-check": "tsc --noEmit"
   },
   "files": [
     "/src",
@@ -34,7 +37,10 @@
     "stream"
   ],
   "author": "Eugene Lazutkin <eugene.lazutkin@gmail.com> (http://www.lazutkin.com/)",
-  "funding": "https://github.com/sponsors/uhop",
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/uhop"
+  },
   "license": "BSD-3-Clause",
   "devDependencies": {
     "tape-six": "^0.9.6",
