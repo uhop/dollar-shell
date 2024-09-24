@@ -6,11 +6,14 @@ import {$$, shell, currentExecPath, runFileArgs, raw} from 'dollar-shell';
 
 import {fileURLToPath} from 'node:url';
 
-const program = fileURLToPath(new URL('./data/args-json.js', import.meta.url));
+const program = fileURLToPath(new URL('./data/args-json.js', import.meta.url)),
+  args = [...runFileArgs];
+
+if (typeof Deno == 'object') args.push('--allow-read');
 
 test('Running JS with spawn()', async t => {
-  const cp = $$({stdout: 'pipe'})`${currentExecPath()} ${program} ${raw(runFileArgs.join(' '))} 123`;
-  t.deepEqual(cp.command, [t.any, ...runFileArgs, t.any, '123']);
+  const cp = $$({stdout: 'pipe'})`${currentExecPath()} ${raw(args.join(' '))} ${program} 123`;
+  t.deepEqual(cp.command, [t.any, ...args, t.any, '123']);
 
   let result = '';
 
@@ -33,7 +36,7 @@ test('Running JS with spawn()', async t => {
 });
 
 test('Running JS with shell', async t => {
-  const cp = shell({stdout: 'pipe'})`${currentExecPath()} ${program} ${raw(runFileArgs.join(' '))} 123`;
+  const cp = shell({stdout: 'pipe'})`${currentExecPath()} ${raw(args.join(' '))} ${program} 123`;
 
   let result = '';
 
