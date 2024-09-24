@@ -2,6 +2,32 @@
 
 import {verifyStrings, isRawValue, getRawValue} from './utils.js';
 
+const appendString = (s, previousSpace, result) => {
+  previousSpace ||= /^\s/.test(s);
+  if (previousSpace) s = s.trimStart();
+
+  const lastSpace = /\s$/.test(s);
+  if (lastSpace) s = s.trimEnd();
+
+  let parts = s.split(/\s+/g).filter(part => part);
+  if (parts.length) {
+    if (!previousSpace) {
+      if (result.length) {
+        result[result.length - 1] += parts[0];
+      } else {
+        result.push(parts[0]);
+      }
+      parts = parts.slice(1);
+    }
+    result.push(...parts);
+    previousSpace = lastSpace;
+  } else {
+    previousSpace ||= lastSpace;
+  }
+
+  return previousSpace;
+};
+
 const impl =
   (spawn, options) =>
   (strings, ...args) => {
@@ -11,45 +37,30 @@ const impl =
     for (let i = 0; i < strings.length; i++) {
       // process a string
 
-      let string = strings[i];
-      previousSpace ||= /^\s/.test(string);
-      if (previousSpace) string = string.trimStart();
-      const lastSpace = /\s$/.test(string);
-      if (lastSpace) string = string.trimEnd();
-
-      let parts = string.split(/\s+/g).filter(part => part);
-      if (parts.length) {
-        if (!previousSpace) {
-          if (result.length) {
-            result[result.length - 1] += parts[0];
-          } else {
-            result.push(parts[0]);
-          }
-          parts = parts.slice(1);
-        }
-        result.push(...parts);
-        previousSpace = lastSpace;
-      } else {
-        previousSpace ||= lastSpace;
-      }
+      previousSpace = appendString(strings[i], previousSpace, result);
 
       // process an argument
 
       if (i >= args.length) continue;
 
-      const arg = String(isRawValue(args[i]) ? getRawValue(args[i]) : args[i]);
-      if (!arg) continue;
-
-      if (previousSpace) {
-        result.push(arg);
+      if (isRawValue(args[i])) {
+        const arg = String(getRawValue(args[i]));
+        if (!arg) continue;
+        previousSpace = appendString(arg, previousSpace, result);
       } else {
-        if (result.length) {
-          result[result.length - 1] += arg;
-        } else {
+        const arg = String(args[i]);
+        if (!arg) continue;
+        if (previousSpace) {
           result.push(arg);
+        } else {
+          if (result.length) {
+            result[result.length - 1] += arg;
+          } else {
+            result.push(arg);
+          }
         }
+        previousSpace = false;
       }
-      previousSpace = false;
     }
 
     return spawn(result, options);
