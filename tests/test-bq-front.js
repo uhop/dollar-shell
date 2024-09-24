@@ -2,7 +2,7 @@
 
 import test from 'tape-six';
 
-import bqSpawn from 'dollar-shell/bq-spawn.js';
+import bqSpawn from '../src/bq-spawn.js';
 
 const $ = bqSpawn((command, options) => ({command, options}));
 

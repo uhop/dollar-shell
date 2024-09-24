@@ -1,10 +1,10 @@
 'use strict';
 
+import {fileURLToPath} from 'node:url';
+
 import test from 'tape-six';
 
-import {$$, shell, currentExecPath, runFileArgs, raw} from 'dollar-shell';
-
-import {fileURLToPath} from 'node:url';
+import {$$, shell, currentExecPath, runFileArgs, raw} from '../src/index.js';
 
 const program = fileURLToPath(new URL('./data/args-json.js', import.meta.url)),
   args = [...runFileArgs];
