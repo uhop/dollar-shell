@@ -1,12 +1,12 @@
 'use strict';
 
-import tests from 'tape-six';
+import test from 'tape-six';
 
 import bqSpawn from 'dollar-shell/bq-spawn.js';
 
 const $ = bqSpawn((command, options) => ({command, options}));
 
-tests('bqSpawn', t => {
+test('bqSpawn', t => {
   let result = $`ls -l ${'.'}`;
   t.deepEqual(result, {command: ['ls', '-l', '.'], options: {}});
 
