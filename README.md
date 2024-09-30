@@ -204,6 +204,7 @@ BSD-3-Clause
 
 ## Release History
 
+* 1.1.0 *Added `asDuplex` to the sub-process object.*
 * 1.0.5 *Updated dev dependencies.*
 * 1.0.4 *Fixed `raw()` for spawn commands.*
 * 1.0.3 *Added TSDoc comments, improved docs, fixed typos, added the missing copying of properties.*
