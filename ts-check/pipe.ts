@@ -1,6 +1,6 @@
 'use strict';
 
-import $ from 'dollar-shell';
+import $, {$$} from 'dollar-shell';
 
 // Bun does not implement `Writable.toWeb()` yet
 // and it doesn't provide a simple way to write to `stdout` using web streams
@@ -17,5 +17,5 @@ import $ from 'dollar-shell';
 
 $.from`ls -l .`
   .pipeThrough($.io`grep LIC`)
-  .pipeThrough($.io`wc`)
+  .pipeThrough($$`wc`.asDuplex)
   .pipeTo($.to({stdout: 'inherit'})`tee output.txt`);

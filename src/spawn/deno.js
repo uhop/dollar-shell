@@ -63,6 +63,10 @@ class Subprocess {
     return this.spawnOptions.stderr === 'piped' ? this.childProcess.stderr : null;
   }
 
+  get asDuplex() {
+    return {readable: this.stdout, writable: this.stdin};
+  }
+
   kill() {
     this.killed = true;
     this.controller.abort();

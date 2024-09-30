@@ -61,6 +61,10 @@ class Subprocess {
     this.stderr = this.childProcess.stderr && Readable.toWeb(this.childProcess.stderr);
   }
 
+  get asDuplex() {
+    return {readable: this.stdout, writable: this.stdin};
+  }
+
   kill() {
     this.killed = true;
     this.childProcess.kill();

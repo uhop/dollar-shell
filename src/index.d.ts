@@ -30,6 +30,20 @@ export interface SpawnOptions {
 }
 
 /**
+ * Object with readable and writable streams. It can be used as a duplex stream.
+ */
+interface DuplexPair<R = any> {
+  /**
+   * The readable stream.
+   */
+  readable: ReadableStream<R>;
+  /**
+   * The writable stream.
+   */
+  writable: WritableStream<R>;
+}
+
+/**
  * Sub-process object.
  */
 export interface Subprocess<R = any> {
@@ -77,6 +91,11 @@ export interface Subprocess<R = any> {
    * It is `null` if `options.stderr` was not set to `'pipe'`.
    */
   readonly stderr: ReadableStream<R> | null;
+  /**
+   * Returns a duplex stream that can be used to pipe the input and output.
+   * It is defined as `{readable: this.stdout, writable: this.stdin}`.
+   */
+  readonly asDuplex: DuplexPair<R>;
   /**
    * Kill the process.
    */
@@ -179,20 +198,6 @@ export interface DollarResult {
    * Whether the process was killed.
    */
   killed: boolean;
-}
-
-/**
- * Object with readable and writable streams. It can be used as a duplex stream.
- */
-interface DuplexPair<R = any> {
-  /**
-   * The readable stream.
-   */
-  readable: ReadableStream<R>;
-  /**
-   * The writable stream.
-   */
-  writable: WritableStream<R>;
 }
 
 /**

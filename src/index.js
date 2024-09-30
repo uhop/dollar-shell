@@ -50,7 +50,7 @@ const toProcess = bqSpawn((command, options) => {
 
 const throughProcess = bqSpawn((command, options) => {
   const sp = spawn(command, Object.assign({}, options, {stdin: 'pipe', stdout: 'pipe'}));
-  return {readable: sp.stdout, writable: sp.stdin};
+  return sp.asDuplex;
 });
 
 $.from = fromProcess;
@@ -79,7 +79,7 @@ const toShell = bqShell(shellEscape, (command, options) => {
 
 const throughShell = bqShell(shellEscape, (command, options) => {
   const sp = spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), Object.assign({}, options, {stdin: 'pipe', stdout: 'pipe'}));
-  return {readable: sp.stdout, writable: sp.stdin};
+  return sp.asDuplex;
 });
 
 $sh.from = fromShell;

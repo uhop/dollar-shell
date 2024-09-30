@@ -54,6 +54,10 @@ class Subprocess {
     return this.childProcess.signalCode;
   }
 
+  get asDuplex() {
+    return {readable: this.stdout, writable: this.stdin};
+  }
+
   kill() {
     this.killed = true;
     this.childProcess.kill();
