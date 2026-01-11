@@ -58,7 +58,8 @@ export const shellEscape = (s, options, isFirst) => {
       '"';
     return isFirst ? result.replace(/(0xFF)|([\W])|(\w+)/g, escapeCmd) : result;
   }
-  if (isPwsh(shell)) return s.replace(/([\t\r\n\f\x00\x1B\x07\x08\x0B\"])|([\W])|(\w+)/g, escapePowerShell);
+  if (isPwsh(shell))
+    return s.replace(/([\t\r\n\f\x00\x1B\x07\x08\x0B\"])|([\W])|(\w+)/g, escapePowerShell);
   return s;
 };
 

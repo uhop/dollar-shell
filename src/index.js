@@ -59,7 +59,9 @@ $.through = $.io = throughProcess;
 
 // define shell functions
 
-export const shell = bqShell(shellEscape, (command, options) => spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), options));
+export const shell = bqShell(shellEscape, (command, options) =>
+  spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), options)
+);
 export {shell as sh};
 
 export const $sh = bqShell(shellEscape, (command, options) => {
@@ -68,17 +70,26 @@ export const $sh = bqShell(shellEscape, (command, options) => {
 });
 
 const fromShell = bqShell(shellEscape, (command, options) => {
-  const sp = spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), Object.assign({}, options, {stdout: 'pipe'}));
+  const sp = spawn(
+    buildShellCommand(options?.shellPath, options?.shellArgs, command),
+    Object.assign({}, options, {stdout: 'pipe'})
+  );
   return sp.stdout;
 });
 
 const toShell = bqShell(shellEscape, (command, options) => {
-  const sp = spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), Object.assign({}, options, {stdin: 'pipe'}));
+  const sp = spawn(
+    buildShellCommand(options?.shellPath, options?.shellArgs, command),
+    Object.assign({}, options, {stdin: 'pipe'})
+  );
   return sp.stdin;
 });
 
 const throughShell = bqShell(shellEscape, (command, options) => {
-  const sp = spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), Object.assign({}, options, {stdin: 'pipe', stdout: 'pipe'}));
+  const sp = spawn(
+    buildShellCommand(options?.shellPath, options?.shellArgs, command),
+    Object.assign({}, options, {stdin: 'pipe', stdout: 'pipe'})
+  );
   return sp.asDuplex;
 });
 

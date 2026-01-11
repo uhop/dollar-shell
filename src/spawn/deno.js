@@ -26,7 +26,11 @@ class Subprocess {
 
     this.controller = new AbortController();
 
-    const spawnOptions = {signal: this.controller.signal, args: command.slice(1), windowsRawArguments: true};
+    const spawnOptions = {
+      signal: this.controller.signal,
+      args: command.slice(1),
+      windowsRawArguments: true
+    };
     options.cwd && (spawnOptions.cwd = options.cwd);
     options.env && (spawnOptions.env = options.env);
 

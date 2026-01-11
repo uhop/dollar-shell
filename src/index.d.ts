@@ -148,7 +148,10 @@ export interface ShellEscapeOptions {
 /**
  * Escapes a value using the specified options.
  */
-export declare function shellEscape(value: {toString(): string}, options?: ShellEscapeOptions): string;
+export declare function shellEscape(
+  value: {toString(): string},
+  options?: ShellEscapeOptions
+): string;
 
 /**
  * The path of the current shell.
@@ -158,7 +161,11 @@ export declare function currentShellPath(): string;
 /**
  * Builds a shell command from a command using the `shell` and its `args`.
  */
-export declare function buildShellCommand(shell: string | undefined, args: string[] | undefined, command: string): string[];
+export declare function buildShellCommand(
+  shell: string | undefined,
+  args: string[] | undefined,
+  command: string
+): string[];
 
 /**
  * Backticks (tag) function.

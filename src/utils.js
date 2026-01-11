@@ -16,7 +16,8 @@ if (typeof Deno !== 'undefined') {
 }
 export {getEnv, isWindows, isAndroid};
 
-export const verifyStrings = strings => Array.isArray(strings) && strings.every(s => typeof s === 'string');
+export const verifyStrings = strings =>
+  Array.isArray(strings) && strings.every(s => typeof s === 'string');
 
 export const toBase64 = s => {
   // const buf = new TextEncoder().encode(s),
@@ -34,4 +35,6 @@ export const raw = value => ({[rawValueSymbol]: value});
 export const isRawValue = value => value && typeof value === 'object' && rawValueSymbol in value;
 export const getRawValue = value => value[rawValueSymbol];
 
-export const winCmdEscape = isWindows ? value => raw(String(value).replace(/./g, '^$&')) : value => String(value);
+export const winCmdEscape = isWindows
+  ? value => raw(String(value).replace(/./g, '^$&'))
+  : value => String(value);
