@@ -204,6 +204,7 @@ BSD-3-Clause
 
 ## Release History
 
+- 1.1.1 _Updated dev dependencies._
 - 1.1.0 _Added `asDuplex` to the sub-process object._
 - 1.0.5 _Updated dev dependencies._
 - 1.0.4 _Fixed `raw()` for spawn commands._
