@@ -1,7 +1,7 @@
 {
   "name": "dollar-shell",
   "description": "Run shell commands and use them in streams with ease in Node, Deno, Bun. Tiny, simple, no dependency package.",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "type": "module",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
@@ -48,7 +48,7 @@
   },
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "tape-six": "^1.4.1",
+    "tape-six": "^1.4.2",
     "typescript": "^5.9.3"
   },
   "tape6": {
