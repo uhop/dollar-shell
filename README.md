@@ -204,6 +204,7 @@ BSD-3-Clause
 
 ## Release History
 
+- 1.1.5 _Updated dev dependencies._
 - 1.1.4 _Updated dev dependencies._
 - 1.1.3 _Updated dev dependencies._
 - 1.1.2 _Updated dev dependencies._
