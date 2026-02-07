@@ -1,7 +1,7 @@
 {
   "name": "dollar-shell",
   "description": "Run shell commands and use them in streams with ease in Node, Deno, Bun. Tiny, simple, no dependency package.",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "type": "module",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
@@ -16,6 +16,9 @@
     "test": "tape6 --flags FO",
     "test:bun": "tape6-bun --flags FO",
     "test:deno": "tape6-deno --flags FO",
+    "test:seq": "tape6-seq --flags FO",
+    "test:seq:bun": "bun run `tape6-seq --self` --flags FO",
+    "test:seq:deno": "deno run -A `tape6-seq --self` --flags FO",
     "ts-check": "tsc --noEmit",
     "lint": "prettier --check .",
     "lint:fix": "prettier --write ."
@@ -47,7 +50,7 @@
   },
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "tape-six": "^1.5.1",
+    "tape-six": "^1.7.0",
     "typescript": "^5.9.3"
   },
   "tape6": {
