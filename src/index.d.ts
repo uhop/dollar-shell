@@ -124,6 +124,11 @@ export declare function currentExecPath(): string;
 export declare const runFileArgs: string[];
 
 /**
+ * Whether the current platform is Windows.
+ */
+export declare const isWindows: boolean;
+
+/**
  * The function marks a value as raw. The value will be passed as-is to the shell.
  * It is used to bypass the default shell escaping rules.
  */

@@ -194,7 +194,7 @@ the spawn options with the following properties:
 - `shellArgs` &mdash; an array of strings that are passed to the shell as arguments.
   - On Unix-like systems it defaults to `['-c']`.
   - On Windows it defaults to `['/d', '/s', '/c']` for `cmd.exe`
-    or `['-e']` for `pwsh.exe` or `powershell.exe`.
+    or `['-c']` for `pwsh.exe` or `powershell.exe`.
 
 The rest is identical to `$`: `$sh`, `$sh.from`, `$sh.to` and `$sh.io`/`$sh.through`.
 
