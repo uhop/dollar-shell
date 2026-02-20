@@ -50,7 +50,7 @@
   },
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "tape-six": "^1.7.0",
+    "tape-six": "^1.7.1",
     "typescript": "^5.9.3"
   },
   "tape6": {
