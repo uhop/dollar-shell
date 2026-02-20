@@ -1,0 +1,28 @@
+# dollar-shell
+
+> A micro-library for running shell commands and using them in stream pipelines with ease in Node, Deno, Bun. Tiny, simple, zero-dependency package with TypeScript typings. Uses web streams.
+
+The package provides template-tag functions to spawn OS processes (`$`, `$$`) and shell processes (`$sh`, `shell`/`sh`). Each has variants for stream pipelines: `.from` (stdout as ReadableStream), `.to` (stdin as WritableStream), `.io`/`.through` (duplex). All tag functions accept an options object to customize spawn/shell behavior and return a new tag function with updated defaults.
+
+Key concepts:
+- `$` runs a command, returns `Promise<{code, signal, killed}>`
+- `$$` runs a command, returns a `Subprocess` object (full control)
+- `$sh` runs a shell command, returns `Promise<{code, signal, killed}>`
+- `shell`/`sh` runs a shell command, returns a `Subprocess` object
+- `spawn()` is the low-level function all others build on
+- Template string arguments are automatically escaped (shell) or split (spawn)
+- `raw()` bypasses escaping/splitting for a value
+- Works on Node, Deno, and Bun with the same API
+
+## Docs
+
+- [$ (dollar)](https://github.com/uhop/dollar-shell/wiki/$): Spawn processes with simple return values, includes $.from, $.to, $.io/$.through
+- [$$ (double dollar)](https://github.com/uhop/dollar-shell/wiki/$$): Spawn processes returning full Subprocess objects
+- [$sh (dollar shell)](https://github.com/uhop/dollar-shell/wiki/$sh): Run shell commands with simple return values, includes $sh.from, $sh.to, $sh.io/$sh.through
+- [shell / sh](https://github.com/uhop/dollar-shell/wiki/shell): Run shell commands returning full Subprocess objects
+- [spawn()](https://github.com/uhop/dollar-shell/wiki/spawn): Low-level process spawning with full configuration
+- [Utilities](https://github.com/uhop/dollar-shell/wiki/Utilities): Helper functions — raw(), winCmdEscape(), isWindows, cwd(), currentExecPath(), runFileArgs, shellEscape(), currentShellPath(), buildShellCommand()
+
+## Optional
+
+- [TypeScript declarations](https://github.com/uhop/dollar-shell/blob/main/src/index.d.ts): Full TypeScript type definitions

@@ -198,6 +198,16 @@ the spawn options with the following properties:
 
 The rest is identical to `$`: `$sh`, `$sh.from`, `$sh.to` and `$sh.io`/`$sh.through`.
 
+## For AI Agents
+
+This package ships with files to help AI coding agents and LLMs understand and use it:
+
+- **[AGENTS.md](./AGENTS.md)** — Quick-start instructions, architecture overview, and key patterns for AI agents working with this package.
+- **[llms.txt](./llms.txt)** — Concise project overview with links to documentation, following the [llms.txt standard](https://llmstxt.org/).
+- **[llms-full.txt](./llms-full.txt)** — Self-contained complete API reference (no external links needed).
+
+These files are included in the npm package.
+
 ## License
 
 BSD-3-Clause

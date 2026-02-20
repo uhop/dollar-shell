@@ -1,0 +1,313 @@
+# dollar-shell
+
+> A micro-library for running shell commands and using them in stream pipelines with ease in Node, Deno, Bun. Tiny, simple, zero-dependency package with TypeScript typings. Uses web streams.
+
+The package provides template-tag functions to spawn OS processes (`$`, `$$`) and shell processes (`$sh`, `shell`/`sh`). Each has variants for stream pipelines: `.from` (stdout as ReadableStream), `.to` (stdin as WritableStream), `.io`/`.through` (duplex). All tag functions accept an options object to customize spawn/shell behavior and return a new tag function with updated defaults.
+
+Install: `npm i --save dollar-shell`
+
+## Usage
+
+```js
+import $, {$$, $sh, shell, sh, spawn} from 'dollar-shell';
+```
+
+## spawn()
+
+Low-level function to spawn a process with full control.
+
+Signature: `spawn(command: string[], options?: SpawnOptions): Subprocess`
+
+### SpawnOptions
+
+```ts
+type SpawnStreamState = 'pipe' | 'ignore' | 'inherit' | 'piped' | null;
+
+interface SpawnOptions {
+  cwd?: string;    // working directory, defaults to process.cwd()
+  env?: {[key: string]: string | undefined}; // environment variables
+  stdin?: SpawnStreamState;   // default: null (ignored)
+  stdout?: SpawnStreamState;  // default: null (ignored)
+  stderr?: SpawnStreamState;  // default: null (ignored)
+}
+```
+
+Stream states: `'pipe'`/`'piped'` makes the stream available, `'inherit'` inherits from parent, `'ignore'`/`null` ignores it.
+
+### Subprocess
+
+```ts
+interface Subprocess<R = any> {
+  readonly command: string[];
+  readonly options: SpawnOptions | undefined;
+  readonly exited: Promise<number>;       // resolves to exit code
+  readonly finished: boolean;
+  readonly killed: boolean;
+  readonly exitCode: number | null;
+  readonly signalCode: string | null;
+  readonly stdin: WritableStream<R> | null;   // non-null when stdin is 'pipe'
+  readonly stdout: ReadableStream<R> | null;  // non-null when stdout is 'pipe'
+  readonly stderr: ReadableStream<R> | null;  // non-null when stderr is 'pipe'
+  readonly asDuplex: {readable: ReadableStream<R>, writable: WritableStream<R>};
+  kill(): void;
+}
+```
+
+All streams are web streams (ReadableStream/WritableStream).
+
+Example:
+```js
+import {spawn} from 'dollar-shell';
+
+const sp = spawn(['sleep', '5']);
+await new Promise(resolve => setTimeout(resolve, 1000));
+sp.kill();
+await sp.exited;
+// sp.finished === true, sp.killed === true
+```
+
+## $$ (double dollar)
+
+Template tag function wrapping `spawn()`. Parses the template string into an array of arguments (split by whitespace). Interpolated values are kept as separate arguments when surrounded by whitespace.
+
+```ts
+type Backticks<R> = (strings: TemplateStringsArray, ...args: unknown[]) => R;
+
+interface Dollar<R, O = SpawnOptions> extends Backticks<R> {
+  (options: O): Dollar<R, O>;
+}
+
+declare const $$: Dollar<Subprocess>;
+```
+
+Signatures:
+```js
+import {$$} from 'dollar-shell';
+
+const sp = $$`ls -l ${myFile}`;           // returns Subprocess
+const sp2 = $$(options)`ls -l .`;          // with custom options
+const $tag = $$(options);                  // returns reusable tag function
+const sp3 = $tag`ls -l .`;
+```
+
+## $ (dollar)
+
+Simpler interface than `$$`. Returns a promise with exit info instead of a Subprocess.
+
+```ts
+interface DollarResult {
+  code: number | null;
+  signal: string | null;
+  killed: boolean;
+}
+
+interface DollarImpl<R = any> extends Dollar<Promise<DollarResult>> {
+  from: Dollar<ReadableStream<R>>;       // stdout as source stream
+  to: Dollar<WritableStream<R>>;         // stdin as sink stream
+  through: Dollar<DuplexPair<R>>;        // {readable, writable} pair
+  io: Dollar<DuplexPair<R>>;             // alias of through
+}
+
+declare const $: DollarImpl;
+export default $;
+```
+
+`$` is the default export.
+
+Examples:
+```js
+import $ from 'dollar-shell';
+
+// Run a command
+const result = await $`echo hello`;
+console.log(result.code, result.signal, result.killed);
+
+// With custom options
+const result2 = await $({stdout: 'inherit'})`ls -l .`;
+
+// Stream pipeline
+import chain from 'stream-chain';
+
+chain([
+  $.from`ls -l .`,
+  $.io`grep LICENSE`,
+  $.io`wc`,
+  $.to({stdout: 'inherit'})`tee output.txt`
+]);
+
+// Using $.from with web streams
+$.from`ls -l .`
+  .pipeThrough($.io`grep LIC`)
+  .pipeTo($.to({stdout: 'inherit'})`wc`);
+```
+
+When `$` is called with an options object, it returns a new `$` with updated defaults while preserving `.from`, `.to`, `.through`, `.io`:
+```js
+const $custom = $({stdout: 'inherit', stderr: 'inherit'});
+typeof $custom.from === 'function';  // true
+typeof $custom.io === 'function';    // true
+```
+
+## shell / sh
+
+Like `$$` but executes the command through a shell. Supports shell-specific features like pipes, aliases, and functions.
+
+```ts
+interface ShellOptions extends SpawnOptions {
+  shellPath?: string;    // path to shell executable
+  shellArgs?: string[];  // arguments passed to the shell
+}
+
+declare const shell: Dollar<Subprocess, ShellOptions>;
+declare const sh = shell;  // alias
+```
+
+Shell defaults:
+- Unix: shell = `$SHELL` or `/bin/sh` (or `/system/bin/sh` on Android), args = `['-c']`
+- Windows cmd.exe: shell = `%ComSpec%` or `cmd.exe`, args = `['/d', '/s', '/c']`
+- Windows PowerShell: shell = `pwsh.exe`/`powershell.exe`, args = `['-c']`
+
+Example:
+```js
+import {shell, sh} from 'dollar-shell';
+
+const sp = sh`sleep 5`;
+sp.kill();
+await sp.exited;
+```
+
+## $sh (dollar shell)
+
+Mirrors `$` but runs commands through a shell. Same relationship as `shell` to `$$`.
+
+```ts
+interface ShellImpl<R = any> extends Dollar<Promise<DollarResult>, ShellOptions> {
+  from: Dollar<ReadableStream<R>, ShellOptions>;
+  to: Dollar<WritableStream<R>, ShellOptions>;
+  through: Dollar<DuplexPair<R>, ShellOptions>;
+  io: Dollar<DuplexPair<R>, ShellOptions>;
+}
+
+declare const $sh: ShellImpl;
+```
+
+Examples:
+```js
+import {$sh} from 'dollar-shell';
+
+const result = await $sh`ls .`;
+console.log(result.code, result.signal, result.killed);
+
+// Interactive shell for aliases/functions
+const $p = $sh({shellArgs: ['-ic'], stdout: 'inherit'});
+await $p`nvm ls`;
+
+// Shell pipes
+await $sh({stdout: 'inherit'})`ls -l . | grep LICENSE | wc`;
+
+// Stream pipeline
+$sh.from`ls -l .`
+  .pipeThrough($sh.io`grep LIC`)
+  .pipeTo($sh.to({stdout: 'inherit'})`wc`);
+```
+
+## Utilities
+
+```js
+import {
+  isWindows, raw, winCmdEscape,
+  cwd, currentExecPath, runFileArgs,
+  shellEscape, currentShellPath, buildShellCommand
+} from 'dollar-shell';
+```
+
+### isWindows
+
+`const isWindows: boolean` — `true` if the current platform is Windows.
+
+### raw(value)
+
+Marks a value to bypass shell escaping or spawn argument splitting. The value is passed as-is.
+
+```js
+import {$sh, raw} from 'dollar-shell';
+await $sh({stdout: 'inherit'})`echo ${raw('"hello"')}`;
+```
+
+For spawn (`$`/`$$`), `raw()` values are split by whitespace like template string literals.
+
+### winCmdEscape(value)
+
+Escapes a value for Windows `cmd.exe` using caret (`^`) escaping. On non-Windows, returns the value as a string. Returns a `raw()`-wrapped object on Windows.
+
+```js
+import {$sh, winCmdEscape} from 'dollar-shell';
+await $sh`echo ${winCmdEscape('hello "world"')}`;
+```
+
+### cwd()
+
+Returns the current working directory (platform-agnostic).
+
+### currentExecPath()
+
+Returns the path of the current JS/TS runtime executable (Node, Deno, or Bun).
+
+### runFileArgs
+
+Array of default arguments for the current runtime:
+- Node: `[]`
+- Deno: `['run']`
+- Bun: `['run']`
+
+Note: Deno may require additional permission flags (e.g., `--allow-read`).
+
+### shellEscape(value, options?)
+
+Escapes a value for the current shell. Takes an optional `{shellPath?: string}` options object.
+- Unix: wraps in single quotes
+- Windows cmd.exe: quotes and escapes per cmd.exe rules
+- Windows PowerShell: escapes control characters and non-alphanumeric characters
+
+### currentShellPath()
+
+Returns the current shell path:
+- Unix: `$SHELL` or `/bin/sh` (or `/system/bin/sh` on Android)
+- Windows: `%ComSpec%` or `cmd.exe`
+
+### buildShellCommand(shell, args, command)
+
+Builds a command array for `spawn()` from shell path, args, and command string.
+- `shell`: string or undefined (defaults to `currentShellPath()`)
+- `args`: string[] or undefined (defaults to shell-specific args)
+- `command`: the shell command string
+
+Returns `string[]` suitable for `spawn()`.
+
+## Template String Behavior
+
+### Spawn functions ($, $$)
+
+Template strings are parsed into arrays of arguments by splitting on whitespace. Interpolated values:
+- If surrounded by whitespace: added as a separate argument (preserving spaces within the value)
+- If adjacent to text: concatenated with surrounding text
+- Empty strings are skipped
+- `raw()` values are split by whitespace like literal template text
+
+```js
+$`ls -l ${'.'}`;           // command: ['ls', '-l', '.']
+$`${'l'}s -l a${'.'}b`;    // command: ['ls', '-l', 'a.b']
+$`ls ${'x y'}`;            // command: ['ls', 'x y']  (preserved as one arg)
+```
+
+### Shell functions ($sh, shell)
+
+Template strings are concatenated into a single command string. Interpolated values are escaped using `shellEscape()` unless wrapped with `raw()`.
+
+## TypeScript
+
+Full TypeScript declarations are provided in `src/index.d.ts`. The package uses `"types": "./src/index.d.ts"` in package.json.
+
+## Platform Support
+
+Works on Node.js, Deno, and Bun. The appropriate spawn implementation is selected automatically at import time. All streams use the web streams API (ReadableStream/WritableStream).

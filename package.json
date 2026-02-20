@@ -26,7 +26,10 @@
   "files": [
     "/src",
     "LICENSE",
-    "README.md"
+    "README.md",
+    "AGENTS.md",
+    "llms.txt",
+    "llms-full.txt"
   ],
   "repository": {
     "type": "git",
@@ -41,7 +44,13 @@
     "spawn",
     "$",
     "dollar",
-    "stream"
+    "stream",
+    "process",
+    "exec",
+    "command",
+    "web-streams",
+    "deno",
+    "bun"
   ],
   "author": "Eugene Lazutkin <eugene.lazutkin@gmail.com> (http://www.lazutkin.com/)",
   "funding": {
