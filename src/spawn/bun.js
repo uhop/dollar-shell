@@ -30,7 +30,17 @@ class Subprocess {
 
     this.spawnOptions = spawnOptions;
 
-    this.childProcess = Bun.spawn(command, spawnOptions);
+    try {
+      this.childProcess = Bun.spawn(command, spawnOptions);
+    } catch (error) {
+      this.childProcess = null;
+      this.finished = true;
+      this.exited = Promise.reject(error);
+      this.stdin = null;
+      this.stdout = null;
+      this.stderr = null;
+      return;
+    }
     this.exited = this.childProcess.exited.then(code => {
       this.finished = true;
       return code;
@@ -42,11 +52,11 @@ class Subprocess {
   }
 
   get exitCode() {
-    return this.childProcess.exitCode;
+    return this.childProcess ? this.childProcess.exitCode : null;
   }
 
   get signalCode() {
-    return this.childProcess.signalCode;
+    return this.childProcess ? this.childProcess.signalCode : null;
   }
 
   get asDuplex() {

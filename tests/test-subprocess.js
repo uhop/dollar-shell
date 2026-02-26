@@ -151,11 +151,7 @@ test('$: non-zero exit code', async t => {
 });
 
 test('spawn: error on invalid command (#1 #2)', async t => {
-  try {
-    const sp = spawn(['__nonexistent_command_12345__'], {});
-    await t.rejects(sp.exited, 'exited rejects for invalid command');
-    t.equal(sp.finished, true, 'finished is true after error');
-  } catch (e) {
-    t.ok(e instanceof Error, 'sync throw for invalid command (Bun behavior)');
-  }
+  const sp = spawn(['__nonexistent_command_12345__'], {});
+  await t.rejects(sp.exited, 'exited rejects for invalid command');
+  t.equal(sp.finished, true, 'finished is true after error');
 });
