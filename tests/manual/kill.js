@@ -1,5 +1,3 @@
-'use strict';
-
 import {$$} from 'dollar-shell';
 
 const p = $$`./tests/manual/inf.sh`;

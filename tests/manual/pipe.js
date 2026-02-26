@@ -1,5 +1,3 @@
-'use strict';
-
 import $ from 'dollar-shell';
 
 // import process from 'node:process';

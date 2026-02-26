@@ -1,5 +1,3 @@
-'use strict';
-
 import {isRawValue, getRawValue, verifyStrings} from './utils.js';
 
 const impl =

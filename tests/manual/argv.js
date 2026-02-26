@@ -1,5 +1,3 @@
-'use strict';
-
 import process from 'node:process';
 
 for (let i = 0; i < process.argv.length; ++i) {

@@ -1,5 +1,3 @@
-'use strict';
-
 import {$sh, currentExecPath, winCmdEscape} from 'dollar-shell';
 
 const $cmd = $sh({stdout: 'inherit', stderr: 'inherit'});

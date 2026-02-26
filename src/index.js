@@ -1,7 +1,5 @@
 // @ts-self-types="./index.d.ts"
 
-'use strict';
-
 // load dependencies
 
 import {isWindows, raw, winCmdEscape} from './utils.js';

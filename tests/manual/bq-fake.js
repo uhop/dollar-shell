@@ -1,5 +1,3 @@
-'use strict';
-
 import bqSpawn from 'dollar-shell/bq-spawn.js';
 
 const fakeSpawn = (command, options) => {

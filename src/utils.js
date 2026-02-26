@@ -1,5 +1,3 @@
-'use strict';
-
 let getEnv, isWindows, isAndroid;
 if (typeof Deno !== 'undefined') {
   getEnv = name => Deno.env.get(name);

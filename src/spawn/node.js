@@ -1,5 +1,3 @@
-'use strict';
-
 import {spawn} from 'node:child_process';
 import {Readable, Writable} from 'node:stream';
 

@@ -1,5 +1,3 @@
-'use strict';
-
 import {getEnv, toBase64} from '../utils.js';
 
 export const currentShellPath = () => getEnv('ComSpec') || 'cmd.exe';

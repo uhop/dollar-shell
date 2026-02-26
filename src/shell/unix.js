@@ -1,5 +1,3 @@
-'use strict';
-
 import {getEnv, isAndroid} from '../utils.js';
 
 export const shellEscape = s => "'" + String(s).replace(/'/g, "'\\''") + "'";

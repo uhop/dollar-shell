@@ -1,5 +1,3 @@
-'use strict';
-
 const sanitize = (value, defaultValue = 'ignore') => {
   switch (value) {
     case 'pipe':

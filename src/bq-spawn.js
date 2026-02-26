@@ -1,5 +1,3 @@
-'use strict';
-
 import {verifyStrings, isRawValue, getRawValue} from './utils.js';
 
 const appendString = (s, previousSpace, result) => {
