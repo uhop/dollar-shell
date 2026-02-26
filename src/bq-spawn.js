@@ -67,7 +67,11 @@ const impl =
 const bqSpawn = (spawn, options = {}) => {
   const bq = (strings, ...args) => {
     if (verifyStrings(strings)) return impl(spawn, options)(strings, ...args);
-    return Object.assign(bqSpawn(spawn, {...options, ...strings}), bq);
+    const derived = bqSpawn(spawn, {...options, ...strings});
+    for (const [key, value] of Object.entries(bq)) {
+      derived[key] = typeof value === 'function' ? value(strings) : value;
+    }
+    return derived;
   };
   return bq;
 };

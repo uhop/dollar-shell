@@ -26,7 +26,11 @@ const impl =
 const bqShell = (shellEscape, shell, options = {}) => {
   const bq = (strings, ...args) => {
     if (verifyStrings(strings)) return impl(shellEscape, shell, options)(strings, ...args);
-    return Object.assign(bqShell(shellEscape, shell, {...options, ...strings}), bq);
+    const derived = bqShell(shellEscape, shell, {...options, ...strings});
+    for (const [key, value] of Object.entries(bq)) {
+      derived[key] = typeof value === 'function' ? value(strings) : value;
+    }
+    return derived;
   };
   return bq;
 };
