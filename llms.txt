@@ -1,18 +1,67 @@
 # dollar-shell
 
-> A micro-library for running shell commands and using them in stream pipelines with ease in Node, Deno, Bun. Tiny, simple, zero-dependency package with TypeScript typings. Uses web streams.
+> A micro-library for running OS and shell commands from JavaScript/TypeScript using template tag functions. Works in Node, Deno, and Bun with the same API. Web streams, TypeScript typings, zero dependencies.
 
-The package provides template-tag functions to spawn OS processes (`$`, `$$`) and shell processes (`$sh`, `shell`/`sh`). Each has variants for stream pipelines: `.from` (stdout as ReadableStream), `.to` (stdin as WritableStream), `.io`/`.through` (duplex). All tag functions accept an options object to customize spawn/shell behavior and return a new tag function with updated defaults.
+## Install
 
-Key concepts:
-- `$` runs a command, returns `Promise<{code, signal, killed}>`
-- `$$` runs a command, returns a `Subprocess` object (full control)
-- `$sh` runs a shell command, returns `Promise<{code, signal, killed}>`
-- `shell`/`sh` runs a shell command, returns a `Subprocess` object
-- `spawn()` is the low-level function all others build on
-- Template string arguments are automatically escaped (shell) or split (spawn)
-- `raw()` bypasses escaping/splitting for a value
-- Works on Node, Deno, and Bun with the same API
+npm i --save dollar-shell
+
+## Quick start
+
+```js
+import $ from 'dollar-shell';
+
+const result = await $`echo hello`;
+// result: {code: 0, signal: null, killed: false}
+```
+
+Run: `node my-script.js`
+
+## API
+
+- `$` — run a command, returns `Promise<{code, signal, killed}>`. Default export.
+- `$$` — run a command, returns a `Subprocess` object (full control: kill, streams, exit code).
+- `$sh` — run a shell command, returns `Promise<{code, signal, killed}>`.
+- `shell` / `sh` — run a shell command, returns a `Subprocess` object.
+- `spawn()` — low-level process spawning with full configuration.
+
+Stream pipeline helpers (available on `$` and `$sh`):
+- `.from` — stdout as a ReadableStream (source).
+- `.to` — stdin as a WritableStream (sink).
+- `.io` / `.through` — {readable, writable} duplex pair (transform step).
+
+All tag functions accept an options object to return a new tag function with updated defaults.
+
+Utilities: `raw()`, `winCmdEscape()`, `isWindows`, `cwd()`, `currentExecPath()`, `runFileArgs`, `shellEscape()`, `currentShellPath()`, `buildShellCommand()`.
+
+## Common patterns
+
+```js
+import $, {$$, $sh, raw} from 'dollar-shell';
+
+// Simple command
+const result = await $`echo hello`;
+
+// Shell command (pipes, aliases, globbing)
+await $sh({stdout: 'inherit'})`ls -l . | grep LICENSE | wc`;
+
+// Full Subprocess control
+const sp = $$`sleep 5`;
+sp.kill();
+await sp.exited;
+
+// Custom options (returns new tag function)
+const $verbose = $({stdout: 'inherit', stderr: 'inherit'});
+await $verbose`ls -l .`;
+
+// Web stream pipeline
+$.from`ls -l .`
+  .pipeThrough($.io`grep LIC`)
+  .pipeTo($.to({stdout: 'inherit'})`wc`);
+
+// Bypass escaping with raw()
+await $sh({stdout: 'inherit'})`echo ${raw('"hello"')}`;
+```
 
 ## Docs
 
@@ -23,6 +72,8 @@ Key concepts:
 - [spawn()](https://github.com/uhop/dollar-shell/wiki/spawn): Low-level process spawning with full configuration
 - [Utilities](https://github.com/uhop/dollar-shell/wiki/Utilities): Helper functions — raw(), winCmdEscape(), isWindows, cwd(), currentExecPath(), runFileArgs, shellEscape(), currentShellPath(), buildShellCommand()
 
-## Optional
+## Links
 
-- [TypeScript declarations](https://github.com/uhop/dollar-shell/blob/main/src/index.d.ts): Full TypeScript type definitions
+- Docs: https://github.com/uhop/dollar-shell/wiki
+- npm: https://www.npmjs.com/package/dollar-shell
+- Full LLM reference: https://github.com/uhop/dollar-shell/blob/main/llms-full.txt

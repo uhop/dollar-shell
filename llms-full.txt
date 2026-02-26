@@ -1,10 +1,14 @@
 # dollar-shell
 
-> A micro-library for running shell commands and using them in stream pipelines with ease in Node, Deno, Bun. Tiny, simple, zero-dependency package with TypeScript typings. Uses web streams.
+> A micro-library for running OS and shell commands from JavaScript/TypeScript using template tag functions. Works in Node, Deno, and Bun with the same API. Web streams, TypeScript typings, zero dependencies.
 
 The package provides template-tag functions to spawn OS processes (`$`, `$$`) and shell processes (`$sh`, `shell`/`sh`). Each has variants for stream pipelines: `.from` (stdout as ReadableStream), `.to` (stdin as WritableStream), `.io`/`.through` (duplex). All tag functions accept an options object to customize spawn/shell behavior and return a new tag function with updated defaults.
 
-Install: `npm i --save dollar-shell`
+## Install
+
+```bash
+npm i --save dollar-shell
+```
 
 ## Usage
 

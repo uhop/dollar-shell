@@ -3,7 +3,7 @@
 [npm-image]: https://img.shields.io/npm/v/dollar-shell.svg
 [npm-url]: https://npmjs.org/package/dollar-shell
 
-`dollar-shell` is a micro-library for running shell commands and using them in streams with ease in Node, Deno, Bun. It is a tiny, simple, no dependency package with TypeScript typings.
+`dollar-shell` is a micro-library for running OS and shell commands from JavaScript/TypeScript using template tag functions. It works in [Node](https://nodejs.org/), [Deno](https://deno.land/), [Bun](https://bun.sh/) with the same API. **Web streams, TypeScript typings, zero dependencies.**
 
 The idea is to run OS/shell commands and/or use them in stream pipelines as sources, sinks,
 and transformation steps using [web streams](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API).
@@ -85,10 +85,32 @@ chain([
 npm i --save dollar-shell
 ```
 
+## Project structure
+
+```
+dollar-shell/
+├── src/              # Source code
+│   ├── index.js      # Main entry point, wires everything together
+│   ├── index.d.ts    # TypeScript declarations for the full public API
+│   ├── bq-spawn.js   # Template tag factory for spawn-based functions ($, $$)
+│   ├── bq-shell.js   # Template tag factory for shell-based functions ($sh, shell)
+│   ├── utils.js      # Shared utilities (raw, isWindows, winCmdEscape, etc.)
+│   ├── spawn/        # Runtime-specific Subprocess implementations
+│   └── shell/        # Platform-specific shell escaping and command building
+├── tests/            # Automated tests (tape-six)
+├── tests/manual/     # Manual verification scripts
+├── ts-check/         # TypeScript usage examples (compiled but not executed)
+└── wiki/             # GitHub wiki documentation (git submodule)
+```
+
 ## Documentation
 
+The documentation can be found in the [wiki](https://github.com/uhop/dollar-shell/wiki).
+See how it can be used in [tests/](https://github.com/uhop/dollar-shell/tree/main/tests).
+
+For AI assistants: see [llms.txt](https://github.com/uhop/dollar-shell/blob/main/llms.txt) and [llms-full.txt](https://github.com/uhop/dollar-shell/blob/main/llms-full.txt) for LLM-optimized documentation.
+
 Below is the documentation for the main components: `spawn()`, `$$`, `$` and `$sh`.
-Additional information can be found in the [wiki](https://github.com/uhop/dollar-shell/wiki).
 
 ### `spawn()`
 
@@ -200,13 +222,15 @@ The rest is identical to `$`: `$sh`, `$sh.from`, `$sh.to` and `$sh.io`/`$sh.thro
 
 ## For AI Agents
 
-This package ships with files to help AI coding agents and LLMs understand and use it:
+This package ships with files to help AI coding agents and LLMs find, understand, and use it:
 
-- **[AGENTS.md](./AGENTS.md)** — Quick-start instructions, architecture overview, and key patterns for AI agents working with this package.
-- **[llms.txt](./llms.txt)** — Concise project overview with links to documentation, following the [llms.txt standard](https://llmstxt.org/).
+- **[AGENTS.md](./AGENTS.md)** — Project conventions, architecture, commands, and coding guidelines for AI agents.
+- **[CLAUDE.md](./CLAUDE.md)** — Claude Code specific instructions (redirects to AGENTS.md).
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)** — Contribution guidelines for humans and AI agents.
+- **[llms.txt](./llms.txt)** — Concise project overview following the [llms.txt standard](https://llmstxt.org/).
 - **[llms-full.txt](./llms-full.txt)** — Self-contained complete API reference (no external links needed).
 
-These files are included in the npm package.
+All files are included in the npm package.
 
 ## License
 
