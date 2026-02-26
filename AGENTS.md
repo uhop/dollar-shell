@@ -66,9 +66,7 @@ await sp.exited;
 await $sh`ls -l . | grep LICENSE | wc`;
 
 // Stream pipelines
-$.from`ls -l .`
-  .pipeThrough($.io`grep LIC`)
-  .pipeTo($.to({stdout: 'inherit'})`wc`);
+$.from`ls -l .`.pipeThrough($.io`grep LIC`).pipeTo($.to({stdout: 'inherit'})`wc`);
 
 // Custom options (returns new tag function with updated defaults)
 const $verbose = $({stdout: 'inherit', stderr: 'inherit'});
