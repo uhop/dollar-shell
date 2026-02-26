@@ -1,6 +1,8 @@
 import test from 'tape-six';
 
-import $, {$sh, isWindows} from '../src/index.js';
+import $, {$sh, isWindows, raw} from '../src/index.js';
+
+const catArgs = isWindows ? raw('/r .*') : raw('');
 
 const readStream = async stream => {
   const reader = stream.getReader();
@@ -17,21 +19,25 @@ const readStream = async stream => {
 };
 
 test('$.from: returns ReadableStream', async t => {
-  const stream = $.from`echo from-test`;
+  const stream = isWindows
+    ? $.from`node -e ${raw('process.stdout.write("from-test")')}`
+    : $.from`echo from-test`;
   t.ok(stream instanceof ReadableStream, 'is a ReadableStream');
   const text = await readStream(stream);
   t.equal(text, 'from-test', 'contains command output');
 });
 
 test('$.to: returns WritableStream', async t => {
-  const stream = $.to`cat`;
+  const catCmd = isWindows ? 'findstr' : 'cat';
+  const stream = $.to`${catCmd} ${catArgs}`;
   t.ok(stream instanceof WritableStream, 'is a WritableStream');
   const writer = stream.getWriter();
   await writer.close();
 });
 
 test('$.io: returns DuplexPair', async t => {
-  const duplex = $.io`cat`;
+  const catCmd = isWindows ? 'findstr' : 'cat';
+  const duplex = $.io`${catCmd} ${catArgs}`;
   t.ok(duplex.readable instanceof ReadableStream, 'has readable');
   t.ok(duplex.writable instanceof WritableStream, 'has writable');
 
@@ -48,7 +54,11 @@ test('$.through: alias of $.io', t => {
 });
 
 test('$.from with options', async t => {
-  const stream = $.from({stderr: 'inherit'})`echo options-test`;
+  const stream = isWindows
+    ? $.from({
+        stderr: 'inherit'
+      })`node -e ${raw('process.stdout.write("options-test")')}`
+    : $.from({stderr: 'inherit'})`echo options-test`;
   t.ok(stream instanceof ReadableStream, 'is a ReadableStream');
   const text = await readStream(stream);
   t.equal(text, 'options-test', 'contains command output');
@@ -92,7 +102,9 @@ test('derived $ propagates .from/.to/.io (#7)', async t => {
   t.equal(typeof $v.io, 'function', 'derived has .io');
   t.equal(typeof $v.through, 'function', 'derived has .through');
 
-  const stream = $v.from`echo derived-test`;
+  const stream = isWindows
+    ? $v.from`node -e ${raw('process.stdout.write("derived-test")')}`
+    : $v.from`echo derived-test`;
   t.ok(stream instanceof ReadableStream, '.from returns ReadableStream');
   const text = await readStream(stream);
   t.equal(text, 'derived-test', '.from output is correct');

@@ -1,9 +1,12 @@
 import test from 'tape-six';
 
-import {$$, $, spawn, isWindows} from '../src/index.js';
+import {$$, $, spawn, isWindows, raw} from '../src/index.js';
+
+const echoCmd = text =>
+  isWindows ? ['node', '-e', `process.stdout.write(${JSON.stringify(text)})`] : ['echo', text];
 
 test('spawn: basic lifecycle', async t => {
-  const sp = spawn(['echo', 'hello'], {stdout: 'pipe'});
+  const sp = spawn(echoCmd('hello'), {stdout: 'pipe'});
 
   t.ok(Array.isArray(sp.command), 'command is an array');
   t.equal(sp.killed, false, 'not killed initially');
@@ -17,7 +20,7 @@ test('spawn: basic lifecycle', async t => {
 });
 
 test('spawn: finished state after normal exit (#3)', async t => {
-  const sp = spawn(['echo', 'test'], {});
+  const sp = spawn(echoCmd('test'), {});
   await sp.exited;
   t.equal(sp.finished, true, 'finished is true after normal exit');
   t.equal(sp.killed, false, 'killed is false for normal exit');
@@ -38,7 +41,7 @@ test('spawn: kill sets killed and finished', async t => {
 });
 
 test('spawn: stdout stream', async t => {
-  const sp = spawn(['echo', 'hello world'], {stdout: 'pipe'});
+  const sp = spawn(echoCmd('hello world'), {stdout: 'pipe'});
 
   const reader = sp.stdout.getReader();
   const chunks = [];
@@ -71,7 +74,8 @@ test('spawn: stderr stream', async t => {
 });
 
 test('spawn: stdin stream', async t => {
-  const sp = spawn(['cat'], {stdin: 'pipe', stdout: 'pipe'});
+  const cmd = isWindows ? ['findstr', '/r', '.*'] : ['cat'];
+  const sp = spawn(cmd, {stdin: 'pipe', stdout: 'pipe'});
 
   const writer = sp.stdin.getWriter();
   await writer.write(new TextEncoder().encode('hello from stdin'));
@@ -94,7 +98,8 @@ test('spawn: stdin stream', async t => {
 });
 
 test('spawn: asDuplex', async t => {
-  const sp = spawn(['cat'], {stdin: 'pipe', stdout: 'pipe'});
+  const cmd = isWindows ? ['findstr', '/r', '.*'] : ['cat'];
+  const sp = spawn(cmd, {stdin: 'pipe', stdout: 'pipe'});
   const {readable, writable} = sp.asDuplex;
 
   t.ok(readable instanceof ReadableStream, 'readable is a ReadableStream');
@@ -121,7 +126,8 @@ test('spawn: asDuplex', async t => {
 });
 
 test('spawn: non-zero exit code', async t => {
-  const sp = spawn(['sh', '-c', 'exit 42'], {});
+  const cmd = isWindows ? ['cmd', '/c', 'exit 42'] : ['sh', '-c', 'exit 42'];
+  const sp = spawn(cmd, {});
   const code = await sp.exited;
   t.equal(code, 42, 'exited resolves with exit code');
   t.equal(sp.exitCode, 42, 'exitCode is 42');
@@ -129,7 +135,7 @@ test('spawn: non-zero exit code', async t => {
 });
 
 test('$$: returns Subprocess', async t => {
-  const sp = $$`echo hello`;
+  const sp = isWindows ? $$`node -e ${raw('console.log("hello")')}` : $$`echo hello`;
   t.ok(sp.exited instanceof Promise, 'has exited promise');
   t.equal(sp.killed, false, 'not killed');
   await sp.exited;
@@ -138,14 +144,20 @@ test('$$: returns Subprocess', async t => {
 });
 
 test('$: returns DollarResult', async t => {
-  const result = await $`echo hello`;
+  const result = isWindows ? await $`node -e ${raw('console.log("hello")')}` : await $`echo hello`;
   t.equal(result.code, 0, 'code is 0');
   t.equal(result.signal, null, 'signal is null');
   t.equal(result.killed, false, 'killed is false');
 });
 
-test('$: non-zero exit code', async t => {
+test('$: non-zero exit code (Unix)', {skip: isWindows}, async t => {
   const result = await $`sh -c ${'exit 1'}`;
+  t.equal(result.code, 1, 'code is 1');
+  t.equal(result.killed, false, 'killed is false');
+});
+
+test('$: non-zero exit code (Windows)', {skip: !isWindows}, async t => {
+  const result = await $`cmd /c ${'exit 1'}`;
   t.equal(result.code, 1, 'code is 1');
   t.equal(result.killed, false, 'killed is false');
 });
