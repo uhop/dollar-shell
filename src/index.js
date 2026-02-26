@@ -37,17 +37,17 @@ export const $ = bqSpawn((command, options) => {
 });
 
 const fromProcess = bqSpawn((command, options) => {
-  const sp = spawn(command, Object.assign({}, options, {stdout: 'pipe'}));
+  const sp = spawn(command, {...options, stdout: 'pipe'});
   return sp.stdout;
 });
 
 const toProcess = bqSpawn((command, options) => {
-  const sp = spawn(command, Object.assign({}, options, {stdin: 'pipe'}));
+  const sp = spawn(command, {...options, stdin: 'pipe'});
   return sp.stdin;
 });
 
 const throughProcess = bqSpawn((command, options) => {
-  const sp = spawn(command, Object.assign({}, options, {stdin: 'pipe', stdout: 'pipe'}));
+  const sp = spawn(command, {...options, stdin: 'pipe', stdout: 'pipe'});
   return sp.asDuplex;
 });
 
@@ -68,26 +68,27 @@ export const $sh = bqShell(shellEscape, (command, options) => {
 });
 
 const fromShell = bqShell(shellEscape, (command, options) => {
-  const sp = spawn(
-    buildShellCommand(options?.shellPath, options?.shellArgs, command),
-    Object.assign({}, options, {stdout: 'pipe'})
-  );
+  const sp = spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), {
+    ...options,
+    stdout: 'pipe'
+  });
   return sp.stdout;
 });
 
 const toShell = bqShell(shellEscape, (command, options) => {
-  const sp = spawn(
-    buildShellCommand(options?.shellPath, options?.shellArgs, command),
-    Object.assign({}, options, {stdin: 'pipe'})
-  );
+  const sp = spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), {
+    ...options,
+    stdin: 'pipe'
+  });
   return sp.stdin;
 });
 
 const throughShell = bqShell(shellEscape, (command, options) => {
-  const sp = spawn(
-    buildShellCommand(options?.shellPath, options?.shellArgs, command),
-    Object.assign({}, options, {stdin: 'pipe', stdout: 'pipe'})
-  );
+  const sp = spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), {
+    ...options,
+    stdin: 'pipe',
+    stdout: 'pipe'
+  });
   return sp.asDuplex;
 });
 

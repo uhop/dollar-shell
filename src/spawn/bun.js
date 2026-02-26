@@ -18,6 +18,7 @@ class Subprocess {
     this.options = options;
 
     this.killed = false;
+    this.finished = false;
 
     const spawnOptions = {windowsVerbatimArguments: true};
     options.cwd && (spawnOptions.cwd = options.cwd);
@@ -30,18 +31,14 @@ class Subprocess {
     this.spawnOptions = spawnOptions;
 
     this.childProcess = Bun.spawn(command, spawnOptions);
+    this.exited = this.childProcess.exited.then(code => {
+      this.finished = true;
+      return code;
+    });
 
     this.stdin = this.childProcess.stdin ? new WritableStream(this.childProcess.stdin) : null;
     this.stdout = this.childProcess.stdout || null;
     this.stderr = this.childProcess.stderr || null;
-  }
-
-  get exited() {
-    return this.childProcess.exited;
-  }
-
-  get finished() {
-    return this.childProcess.killed;
   }
 
   get exitCode() {

@@ -37,6 +37,22 @@ class Subprocess {
 
     this.spawnOptions = spawnOptions;
 
+    let settled = false;
+    this.exited = new Promise((resolve, reject) => {
+      this.resolve = value => {
+        if (!settled) {
+          settled = true;
+          resolve(value);
+        }
+      };
+      this.reject = value => {
+        if (!settled) {
+          settled = true;
+          reject(value);
+        }
+      };
+    });
+
     this.childProcess = spawn(command[0], command.slice(1), spawnOptions);
     this.childProcess.on('exit', (code, signal) => {
       this.finished = true;
@@ -47,11 +63,6 @@ class Subprocess {
     this.childProcess.on('error', error => {
       this.finished = true;
       this.reject(error);
-    });
-
-    this.exited = new Promise((resolve, reject) => {
-      this.resolve = resolve;
-      this.reject = reject;
     });
 
     this.stdin = this.childProcess.stdin && Writable.toWeb(this.childProcess.stdin);
