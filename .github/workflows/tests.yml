@@ -11,12 +11,13 @@ on:
 
 jobs:
   tests:
-    name: Node.js ${{matrix.node-version}} on ubuntu-latest
-    runs-on: ubuntu-latest
+    name: Node.js ${{matrix.node-version}} on ${{matrix.os}}
+    runs-on: ${{matrix.os}}
 
     strategy:
       matrix:
-        node-version: [18, 20, 22]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+        node-version: [20, 22, 24, 25]
 
     steps:
       - uses: actions/checkout@v4

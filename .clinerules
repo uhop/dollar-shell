@@ -1,0 +1,57 @@
+<!-- Canonical source: AGENTS.md — keep this file in sync -->
+# dollar-shell — AI Agent Rules
+
+## Project identity
+
+dollar-shell is a micro-library for running OS and shell commands from JavaScript/TypeScript using template tag functions. Works in Node, Deno, and Bun with the same API. All streams are web streams. The npm package name is `dollar-shell`.
+
+## Critical rules
+
+- **ESM-only.** The project is `"type": "module"`. Use `import`/`export` syntax.
+- **No transpilation.** Code runs directly in all target runtimes.
+- **No runtime dependencies.** Never add packages to `dependencies`. Only `devDependencies` are allowed.
+- **Do not modify or delete test expectations** without understanding why they changed.
+- **Do not add comments or remove comments** unless explicitly asked.
+- **Keep `src/index.js` and `src/index.d.ts` in sync.** All public API is exported from `src/index.js` and typed in `src/index.d.ts`.
+
+## Code style
+
+- Prettier: 100 char width, single quotes, no bracket spacing, no trailing commas, arrow parens "avoid" (see `.prettierrc`).
+- 2-space indentation.
+- Imports at top of file, using `import` syntax.
+- No semicolons — follow existing patterns.
+
+## Architecture quick reference
+
+- `src/index.js` is the main entry point. It dynamically imports the correct `spawn` implementation (Node/Deno/Bun) and the correct `shell` implementation (Unix/Windows) at import time.
+- All tag functions (`$`, `$$`, `$sh`, `shell`) are built by factory functions in `bq-spawn.js` and `bq-shell.js`.
+- Calling a tag function with an options object returns a new tag function with updated defaults while preserving `.from`, `.to`, `.io`, `.through` properties.
+- `raw()` wraps a value to bypass escaping (shell) or argument splitting (spawn).
+- `isWindows` boolean is exported. Runtime detection (Node/Deno/Bun) happens at import via dynamic imports.
+
+## Verification commands
+
+- `npm test` — run the full test suite (tape-six)
+- `node tests/test-<name>.js` — run a single test file directly
+- `npm run test:bun` — run with Bun
+- `npm run test:deno` — run with Deno
+- `npm run ts-check` — TypeScript type checking (`tsc --noEmit`)
+- `npm run lint` — Prettier format check
+
+## File layout
+
+- Entry point: `src/index.js` + `src/index.d.ts`
+- Tag factories: `src/bq-spawn.js` (spawn-based), `src/bq-shell.js` (shell-based)
+- Utilities: `src/utils.js` (raw, isWindows, winCmdEscape, etc.)
+- Spawn implementations: `src/spawn/node.js`, `src/spawn/deno.js`, `src/spawn/bun.js`
+- Shell implementations: `src/shell/unix.js`, `src/shell/windows.js`
+- Tests: `tests/` (automated, tape-six), `tests/manual/` (manual verification)
+- TypeScript examples: `ts-check/` (compiled but not executed)
+- Wiki docs: `wiki/` (git submodule)
+
+## When reading the codebase
+
+- Start with `AGENTS.md` for full setup, commands, and architecture.
+- `src/index.d.ts` is the best API reference for the public API.
+- Wiki markdown files in `wiki/` contain detailed usage docs.
+- `src/index.js`, `src/bq-spawn.js`, and `src/bq-shell.js` are the core modules — read them first.
