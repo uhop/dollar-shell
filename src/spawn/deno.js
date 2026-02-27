@@ -26,9 +26,9 @@ class Subprocess {
 
     const spawnOptions = {
       signal: this.controller.signal,
-      args: command.slice(1),
-      windowsRawArguments: true
+      args: command.slice(1)
     };
+    if (options.windowsVerbatimArguments) spawnOptions.windowsRawArguments = true;
     options.cwd && (spawnOptions.cwd = options.cwd);
     options.env && (spawnOptions.env = options.env);
 
@@ -38,7 +38,14 @@ class Subprocess {
 
     this.spawnOptions = spawnOptions;
 
-    this.childProcess = new Deno.Command(command[0], spawnOptions).spawn();
+    try {
+      this.childProcess = new Deno.Command(command[0], spawnOptions).spawn();
+    } catch (error) {
+      this.childProcess = null;
+      this.finished = true;
+      this.exited = Promise.reject(error);
+      return;
+    }
 
     this.exited = this.childProcess.status
       .then(status => {
@@ -54,15 +61,15 @@ class Subprocess {
   }
 
   get stdin() {
-    return this.spawnOptions.stdin === 'piped' ? this.childProcess.stdin : null;
+    return this.childProcess && this.spawnOptions.stdin === 'piped' ? this.childProcess.stdin : null;
   }
 
   get stdout() {
-    return this.spawnOptions.stdout === 'piped' ? this.childProcess.stdout : null;
+    return this.childProcess && this.spawnOptions.stdout === 'piped' ? this.childProcess.stdout : null;
   }
 
   get stderr() {
-    return this.spawnOptions.stderr === 'piped' ? this.childProcess.stderr : null;
+    return this.childProcess && this.spawnOptions.stderr === 'piped' ? this.childProcess.stderr : null;
   }
 
   get asDuplex() {

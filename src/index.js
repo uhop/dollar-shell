@@ -58,19 +58,26 @@ $.through = $.io = throughProcess;
 // define shell functions
 
 export const shell = bqShell(shellEscape, (command, options) =>
-  spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), options)
+  spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), {
+    ...options,
+    windowsVerbatimArguments: true
+  })
 );
 export {shell as sh};
 
 export const $sh = bqShell(shellEscape, (command, options) => {
-  const sp = spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), options);
+  const sp = spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), {
+    ...options,
+    windowsVerbatimArguments: true
+  });
   return sp.exited.then(() => ({code: sp.exitCode, signal: sp.signalCode, killed: sp.killed}));
 });
 
 const fromShell = bqShell(shellEscape, (command, options) => {
   const sp = spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), {
     ...options,
-    stdout: 'pipe'
+    stdout: 'pipe',
+    windowsVerbatimArguments: true
   });
   return sp.stdout;
 });
@@ -78,7 +85,8 @@ const fromShell = bqShell(shellEscape, (command, options) => {
 const toShell = bqShell(shellEscape, (command, options) => {
   const sp = spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), {
     ...options,
-    stdin: 'pipe'
+    stdin: 'pipe',
+    windowsVerbatimArguments: true
   });
   return sp.stdin;
 });
@@ -87,7 +95,8 @@ const throughShell = bqShell(shellEscape, (command, options) => {
   const sp = spawn(buildShellCommand(options?.shellPath, options?.shellArgs, command), {
     ...options,
     stdin: 'pipe',
-    stdout: 'pipe'
+    stdout: 'pipe',
+    windowsVerbatimArguments: true
   });
   return sp.asDuplex;
 });

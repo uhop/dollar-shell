@@ -20,7 +20,8 @@ class Subprocess {
     this.killed = false;
     this.finished = false;
 
-    const spawnOptions = {windowsVerbatimArguments: true};
+    const spawnOptions = {};
+    if (options.windowsVerbatimArguments) spawnOptions.windowsVerbatimArguments = true;
     options.cwd && (spawnOptions.cwd = options.cwd);
     options.env && (spawnOptions.env = options.env);
 
