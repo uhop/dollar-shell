@@ -61,15 +61,21 @@ class Subprocess {
   }
 
   get stdin() {
-    return this.childProcess && this.spawnOptions.stdin === 'piped' ? this.childProcess.stdin : null;
+    return this.childProcess && this.spawnOptions.stdin === 'piped'
+      ? this.childProcess.stdin
+      : null;
   }
 
   get stdout() {
-    return this.childProcess && this.spawnOptions.stdout === 'piped' ? this.childProcess.stdout : null;
+    return this.childProcess && this.spawnOptions.stdout === 'piped'
+      ? this.childProcess.stdout
+      : null;
   }
 
   get stderr() {
-    return this.childProcess && this.spawnOptions.stderr === 'piped' ? this.childProcess.stderr : null;
+    return this.childProcess && this.spawnOptions.stderr === 'piped'
+      ? this.childProcess.stderr
+      : null;
   }
 
   get asDuplex() {

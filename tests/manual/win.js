@@ -28,9 +28,9 @@ const cp = spawn(
   [
     '-c',
     [
-    'C:\\Program Files\\nodejs\\node.exe'.replace(/[\W]/g, '`$&'),
-    'tests\\manual\\argv.js'.replace(/[\W]/g, '`$&'),
-    'a  b `\'"#$x@;&~'.replace(/[\W]/g, c => c === '"' ? '`\\"' : ('`' + c))
+      'C:\\Program Files\\nodejs\\node.exe'.replace(/[\W]/g, '`$&'),
+      'tests\\manual\\argv.js'.replace(/[\W]/g, '`$&'),
+      'a  b `\'"#$x@;&~'.replace(/[\W]/g, c => (c === '"' ? '`\\"' : '`' + c))
     ].join(' ')
   ],
   {stdio: 'inherit', windowsVerbatimArguments: true}
