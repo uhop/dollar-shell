@@ -72,7 +72,7 @@
   "license": "BSD-3-Clause",
   "devDependencies": {
     "prettier": "^3.8.1",
-    "tape-six": "^1.7.4",
+    "tape-six": "^1.7.8",
     "typescript": "^5.9.3"
   },
   "tape6": {
