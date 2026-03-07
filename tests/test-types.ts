@@ -214,3 +214,19 @@ test('types: winCmdEscape', t => {
   const result: object | string = winCmdEscape('hello');
   t.ok(result);
 });
+
+test('types: $$.asDuplex returns DuplexPair', t => {
+  const catCmd = isWindows ? 'findstr /r .*' : 'cat';
+  const sp = $$({stdin: 'pipe', stdout: 'pipe'})`${catCmd}`;
+  const duplex: {readable: ReadableStream; writable: WritableStream} = sp.asDuplex;
+  t.ok(duplex.readable instanceof ReadableStream, 'readable is ReadableStream');
+  t.ok(duplex.writable instanceof WritableStream, 'writable is WritableStream');
+  duplex.writable.getWriter().close();
+});
+
+test('types: $sh double option chaining', {skip: isWindows}, async t => {
+  const $custom = $sh({stdout: 'inherit'});
+  const $custom2 = $custom({shellPath: '/bin/sh'});
+  const result: DollarResult = await $custom2`echo chain`;
+  t.ok(result);
+});

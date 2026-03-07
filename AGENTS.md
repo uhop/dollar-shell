@@ -20,6 +20,7 @@ The wiki is a git submodule in `wiki/`.
 - **Test (Bun):** `npm run test:bun`
 - **Test (Deno):** `npm run test:deno`
 - **TypeScript check:** `npm run ts-check` (`tsc --noEmit`)
+- **TypeScript tests:** `npm run ts-test` (run `.ts` test files with tape6)
 - **Lint:** `npm run lint` (Prettier check)
 - **Lint fix:** `npm run lint:fix` (Prettier write)
 
@@ -42,9 +43,8 @@ dollar-shell/
 │   └── shell/        # Platform-specific shell escaping and command building
 │       ├── unix.js   # Unix: single-quote escaping, $SHELL detection
 │       └── windows.js # Windows: cmd.exe and PowerShell escaping
-├── tests/            # Automated tests (tape-six)
+├── tests/            # Automated tests (tape-six): .js, .cjs, .ts
 ├── tests/manual/     # Manual verification scripts
-├── ts-check/         # TypeScript usage examples (compiled but not executed)
 └── wiki/             # GitHub wiki documentation (git submodule)
 ```
 
@@ -94,4 +94,4 @@ await $verbose`ls -l .`;
 - All public API is exported from `src/index.js` and typed in `src/index.d.ts`. Keep them in sync.
 - Wiki documentation lives in the `wiki/` submodule — update it alongside code changes.
 - Tests are in `tests/` (automated, tape-six) and `tests/manual/` (manual verification scripts).
-- TypeScript usage examples are in `ts-check/` — they are compiled but not executed during `npm run ts-check`.
+- TypeScript typing tests (`.ts`) are in `tests/` and checked by `npm run ts-check`. They can also be run as tests via `npm run ts-test`.

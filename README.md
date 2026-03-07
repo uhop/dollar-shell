@@ -97,9 +97,8 @@ dollar-shell/
 │   ├── utils.js      # Shared utilities (raw, isWindows, winCmdEscape, etc.)
 │   ├── spawn/        # Runtime-specific Subprocess implementations
 │   └── shell/        # Platform-specific shell escaping and command building
-├── tests/            # Automated tests (tape-six)
+├── tests/            # Automated tests (tape-six): .js, .cjs, .ts
 ├── tests/manual/     # Manual verification scripts
-├── ts-check/         # TypeScript usage examples (compiled but not executed)
 └── wiki/             # GitHub wiki documentation (git submodule)
 ```
 

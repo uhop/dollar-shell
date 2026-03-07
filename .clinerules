@@ -36,6 +36,7 @@ dollar-shell is a micro-library for running OS and shell commands from JavaScrip
 - `npm run test:bun` — run with Bun
 - `npm run test:deno` — run with Deno
 - `npm run ts-check` — TypeScript type checking (`tsc --noEmit`)
+- `npm run ts-test` — run `.ts` test files with tape6
 - `npm run lint` — Prettier format check
 
 ## File layout
@@ -45,8 +46,7 @@ dollar-shell is a micro-library for running OS and shell commands from JavaScrip
 - Utilities: `src/utils.js` (raw, isWindows, winCmdEscape, etc.)
 - Spawn implementations: `src/spawn/node.js`, `src/spawn/deno.js`, `src/spawn/bun.js`
 - Shell implementations: `src/shell/unix.js`, `src/shell/windows.js`
-- Tests: `tests/` (automated, tape-six), `tests/manual/` (manual verification)
-- TypeScript examples: `ts-check/` (compiled but not executed)
+- Tests: `tests/` (automated, tape-six: `.js`, `.cjs`, `.ts`), `tests/manual/` (manual verification)
 - Wiki docs: `wiki/` (git submodule)
 
 ## When reading the codebase
