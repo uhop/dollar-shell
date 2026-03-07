@@ -13,15 +13,18 @@ Write or update tests using the tape-six testing library.
 - TypeScript is supported natively — no transpilation needed (Node 22+, Deno, Bun run `.ts` files directly).
 - The default `tape6` runner uses worker threads for parallel execution. `tape6-seq` runs sequentially in-process — useful for debugging or when tests share state.
 - dollar-shell tests run OS commands, so they may behave differently on different platforms.
+- **Functionality tests** go in `.js` files and are included in the main test suite (`npm test`).
+- **TypeScript typing tests** go in `.ts` files in `tests/`. They are checked by `npm run ts-check` but are NOT included in the main tape6 test suite (preparing for Node 20 phase-out — Node 20 cannot run `.ts` files natively).
+- **CommonJS tests** go in `.cjs` files and are included in the main test suite.
 
 ## Steps
 
 1. Read `node_modules/tape-six/TESTING.md` for the tape-six API reference and patterns.
 2. Read the existing test files in `tests/` to understand patterns and conventions used in this project.
 3. Identify the module or feature to test. Read its source code to understand the public API.
-4. Create or update the test file in `tests/test-<name>.js`:
-   - Import `test` from `tape-six` (`import test from 'tape-six'`).
-   - Import the module under test from `dollar-shell` or its source files.
+4. Create or update the test file in `tests/test-<name>.js` (or `.cjs` for CommonJS):
+   - **ESM** (`.js`): `import test from 'tape-six'` and `import ... from '../src/index.js'`.
+   - **CJS** (`.cjs`): `const {test} = require('tape-six')` for the test framework. For the module under test, use `await import('../src/index.js')` inside async tests — dollar-shell's entry point uses top-level `await`, so `require()` cannot load it.
    - Write one top-level `test()` per logical group.
    - Use embedded `await t.test()` for sub-cases.
    - Use `t.beforeEach`/`t.afterEach` for shared setup/teardown.
@@ -31,4 +34,5 @@ Write or update tests using the tape-six testing library.
 5. Run the new test file directly to verify: `node tests/test-<name>.js`
 6. Run the full test suite to check for regressions: `npm test`
    - If debugging, use `npm run test:seq` (runs sequentially, easier to trace issues).
+   - To see which files are being run, add `--flags fo` (overrides the default `--flags FO`).
 7. Report results and any failures.

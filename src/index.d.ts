@@ -292,7 +292,7 @@ export declare const shell: Dollar<Subprocess, ShellOptions>;
  *
  * This is an alias of `shell`.
  */
-export declare const sh = shell;
+export declare const sh: typeof shell;
 
 /**
  * The type of the $sh function.

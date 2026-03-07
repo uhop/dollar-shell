@@ -1,6 +1,6 @@
 import test from 'tape-six';
 
-import {$$, $, spawn, isWindows, raw} from '../src/index.js';
+import {$$, $, $sh, shell, sh, spawn, cwd, isWindows, raw} from '../src/index.js';
 
 const echoCmd = text =>
   isWindows ? ['node', '-e', `process.stdout.write(${JSON.stringify(text)})`] : ['echo', text];
@@ -166,4 +166,48 @@ test('spawn: error on invalid command (#1 #2)', async t => {
   const sp = spawn(['__nonexistent_command_12345__'], {});
   await t.rejects(sp.exited, 'exited rejects for invalid command');
   t.equal(sp.finished, true, 'finished is true after error');
+});
+
+test('cwd: returns current directory', t => {
+  const dir = cwd();
+  t.equal(typeof dir, 'string', 'returns a string');
+  t.ok(dir.length > 0, 'non-empty');
+});
+
+test('sh: alias of shell', t => {
+  t.equal(sh, shell, 'sh === shell');
+});
+
+test('$sh: returns DollarResult', {skip: isWindows}, async t => {
+  const result = await $sh`echo hello`;
+  t.equal(result.code, 0, 'code is 0');
+  t.equal(result.signal, null, 'signal is null');
+  t.equal(result.killed, false, 'killed is false');
+});
+
+test('$sh: non-zero exit code', {skip: isWindows}, async t => {
+  const result = await $sh`exit 2`;
+  t.equal(result.code, 2, 'code is 2');
+  t.equal(result.killed, false, 'killed is false');
+});
+
+test('shell: options chaining', {skip: isWindows}, async t => {
+  const sp = shell({stdout: 'pipe'})`echo chain-test`;
+  t.ok(sp.exited instanceof Promise, 'has exited promise');
+
+  const reader = sp.stdout.getReader();
+  const chunks = [];
+  for (;;) {
+    const {value, done} = await reader.read();
+    if (done) break;
+    chunks.push(value);
+  }
+  await sp.exited;
+
+  const text = chunks
+    .map(c => new TextDecoder().decode(c))
+    .join('')
+    .trim();
+  t.equal(text, 'chain-test', 'output is correct');
+  t.equal(sp.exitCode, 0, 'exitCode is 0');
 });
