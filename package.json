@@ -1,7 +1,7 @@
 {
   "name": "dollar-shell",
   "description": "Run shell commands and use them in stream pipelines with ease in Node, Deno, Bun. Template tag API, web streams, TypeScript typings, zero dependencies.",
-  "version": "1.1.11",
+  "version": "1.1.12",
   "type": "module",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
