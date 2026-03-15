@@ -237,6 +237,7 @@ BSD-3-Clause
 
 ## Release History
 
+- 1.1.13 _Updated dev dependencies._
 - 1.1.12 _Consolidated TypeScript tests into `tests/`, removed `ts-check/`, added CJS test, improved test coverage and documentation._
 - 1.1.11 _Updated dev dependencies._
 - 1.1.10 _Fixed a bug with options chaining for attached functions, fixed Bun spawn on invalid commands, Windows-compatible tests, updated dev dependencies._
