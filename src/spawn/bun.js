@@ -1,3 +1,24 @@
+/**
+ * Adapt Bun's `FileSink` to a Web Streams `UnderlyingSink`. `FileSink` exposes
+ * `write`/`end` (close + flush) but no `close`/`abort` matching the spec, so
+ * `new WritableStream(fileSink)` would only work because of an undocumented
+ * runtime `.close` alias. This adapter sticks to the documented `.end` API.
+ *
+ * @param {import('bun').FileSink} sink
+ * @returns {UnderlyingSink}
+ */
+const makeStdinSink = sink => ({
+  async write(/** @type {any} */ chunk) {
+    await sink.write(chunk);
+  },
+  async close() {
+    await sink.end();
+  },
+  async abort(reason) {
+    await sink.end(reason instanceof Error ? reason : new Error(String(reason)));
+  }
+});
+
 const sanitize = (value, defaultValue = 'ignore') => {
   switch (value) {
     case 'pipe':
@@ -47,10 +68,11 @@ class Subprocess {
       return code;
     });
 
-    // @ts-expect-error TODO: Bun's `FileSink` is not a Web Streams `UnderlyingSink` —
-    // `start`/`write` happen to line up but `close` does not (FileSink uses `end`),
-    // so closing this WritableStream won't signal EOF to the child process.
-    this.stdin = this.childProcess.stdin ? new WritableStream(this.childProcess.stdin) : null;
+    const stdinSink = this.childProcess.stdin;
+    this.stdin =
+      stdinSink && typeof stdinSink !== 'number'
+        ? new WritableStream(makeStdinSink(stdinSink))
+        : null;
     this.stdout = this.childProcess.stdout || null;
     this.stderr = this.childProcess.stderr || null;
   }
