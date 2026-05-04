@@ -237,6 +237,7 @@ BSD-3-Clause
 
 ## Release History
 
+- 1.1.14 _Fixed Bun stdin abort path, added js-check, Bun + Deno wired into CI._
 - 1.1.13 _Updated dev dependencies._
 - 1.1.12 _Consolidated TypeScript tests into `tests/`, removed `ts-check/`, added CJS test, improved test coverage and documentation._
 - 1.1.11 _Updated dev dependencies._
@@ -257,3 +258,5 @@ BSD-3-Clause
 - 1.0.2 _Technical release: fixed references in the package file._
 - 1.0.1 _Technical release: more tests, better documentation._
 - 1.0.0 _The initial release._
+
+The full release notes are in the wiki: [Release notes](https://github.com/uhop/dollar-shell/wiki/Release-notes).

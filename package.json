@@ -1,7 +1,7 @@
 {
   "name": "dollar-shell",
-  "description": "Run shell commands and use them in stream pipelines with ease in Node, Deno, Bun. Template tag API, web streams, TypeScript typings, zero dependencies.",
-  "version": "1.1.13",
+  "description": "Run OS and shell commands using template tag functions. Same API in Node, Deno, and Bun. Web streams, TypeScript typings, zero dependencies.",
+  "version": "1.1.14",
   "type": "module",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
@@ -50,7 +50,7 @@
   "keywords": [
     "shell",
     "spawn",
-    "$",
+    "subprocess",
     "dollar",
     "stream",
     "process",
@@ -61,7 +61,6 @@
     "pipeline",
     "typescript",
     "esm",
-    "es-modules",
     "cross-runtime",
     "zero-dependency",
     "nodejs",
@@ -78,9 +77,9 @@
     "@types/bun": "^1.3.13",
     "@types/deno": "^2.5.0",
     "@types/node": "^25.6.0",
-    "prettier": "^3.8.1",
-    "tape-six": "^1.7.12",
-    "typescript": "^5.9.3"
+    "prettier": "^3.8.3",
+    "tape-six": "^1.9.0",
+    "typescript": "^6.0.3"
   },
   "tape6": {
     "tests": [

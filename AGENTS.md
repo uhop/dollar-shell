@@ -19,7 +19,8 @@ The wiki is a git submodule in `wiki/`.
 - **Test (Node):** `npm test` (runs `tape6 --flags FO`)
 - **Test (Bun):** `npm run test:bun`
 - **Test (Deno):** `npm run test:deno`
-- **TypeScript check:** `npm run ts-check` (`tsc --noEmit`)
+- **TypeScript check:** `npm run ts-check` (`tsc --noEmit`, validates the `.d.ts` sidecars)
+- **JavaScript check:** `npm run js-check` (`tsc --project tsconfig.check.json`, lints the `.js` sources for unused vars / undeclared refs)
 - **TypeScript tests:** `npm run ts-test` (run `.ts` test files with tape6)
 - **Lint:** `npm run lint` (Prettier check)
 - **Lint fix:** `npm run lint:fix` (Prettier write)
@@ -28,9 +29,10 @@ The wiki is a git submodule in `wiki/`.
 
 ```
 dollar-shell/
-├── package.json      # Package config
-├── tsconfig.json     # TypeScript config (noEmit check only)
-├── src/              # Source code
+├── package.json          # Package config
+├── tsconfig.json         # Strict TS config — checks the .d.ts sidecars
+├── tsconfig.check.json   # Lint config — checkJs on .js sources, with @types/{node,bun,deno} for cross-runtime globals
+├── src/                  # Source code
 │   ├── index.js      # Main entry point, wires everything together
 │   ├── index.d.ts    # TypeScript declarations for the full public API
 │   ├── bq-spawn.js   # Template tag factory for spawn-based functions ($, $$)
@@ -90,8 +92,8 @@ await $verbose`ls -l .`;
 
 ## Key conventions
 
-- Do not add dependencies — the library is intentionally zero-dependency.
+- Do not add runtime dependencies — the library is intentionally zero-dependency. DevDeps for tooling (`@types/node`, `@types/bun`, `@types/deno`, `prettier`, `tape-six`, `typescript`) are fine.
 - All public API is exported from `src/index.js` and typed in `src/index.d.ts`. Keep them in sync.
-- Wiki documentation lives in the `wiki/` submodule — update it alongside code changes.
+- Wiki documentation lives in the `wiki/` submodule — update it alongside code changes. Cross-runtime behavior asymmetries (e.g. BYOB readers — only Deno supports them) are documented at `wiki/Cross-runtime-notes.md`.
 - Tests are in `tests/` (automated, tape-six) and `tests/manual/` (manual verification scripts).
 - TypeScript typing tests (`.ts`) are in `tests/` and checked by `npm run ts-check`. They can also be run as tests via `npm run ts-test`.
