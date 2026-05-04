@@ -14,7 +14,8 @@ if (typeof Deno !== 'undefined') {
 }
 export {getEnv, isWindows, isAndroid};
 
-export const verifyStrings = strings => Array.isArray(strings) && Array.isArray(strings.raw);
+export const verifyStrings = strings =>
+  Array.isArray(strings) && Array.isArray(/** @type {any} */ (strings).raw);
 
 export const toBase64 = s => {
   // const buf = new TextEncoder().encode(s),

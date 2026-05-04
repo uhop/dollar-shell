@@ -47,6 +47,9 @@ class Subprocess {
       return code;
     });
 
+    // @ts-expect-error TODO: Bun's `FileSink` is not a Web Streams `UnderlyingSink` —
+    // `start`/`write` happen to line up but `close` does not (FileSink uses `end`),
+    // so closing this WritableStream won't signal EOF to the child process.
     this.stdin = this.childProcess.stdin ? new WritableStream(this.childProcess.stdin) : null;
     this.stdout = this.childProcess.stdout || null;
     this.stderr = this.childProcess.stderr || null;

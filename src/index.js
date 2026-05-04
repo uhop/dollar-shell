@@ -51,9 +51,10 @@ const throughProcess = bqSpawn((command, options) => {
   return sp.asDuplex;
 });
 
-$.from = fromProcess;
-$.to = toProcess;
-$.through = $.io = throughProcess;
+const $any = /** @type {any} */ ($);
+$any.from = fromProcess;
+$any.to = toProcess;
+$any.through = $any.io = throughProcess;
 
 // define shell functions
 
@@ -101,8 +102,9 @@ const throughShell = bqShell(shellEscape, (command, options) => {
   return sp.asDuplex;
 });
 
-$sh.from = fromShell;
-$sh.to = toShell;
-$sh.through = $sh.io = throughShell;
+const $shAny = /** @type {any} */ ($sh);
+$shAny.from = fromShell;
+$shAny.to = toShell;
+$shAny.through = $shAny.io = throughShell;
 
 export default $;

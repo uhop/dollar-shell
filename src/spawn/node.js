@@ -27,6 +27,7 @@ class Subprocess {
     this.killed = false;
     this.finished = false;
 
+    /** @type {import('node:child_process').SpawnOptions} */
     const spawnOptions = {stdio: ['ignore', 'ignore', 'ignore']};
     if (options.windowsVerbatimArguments) spawnOptions.windowsVerbatimArguments = true;
     options.cwd && (spawnOptions.cwd = options.cwd);
