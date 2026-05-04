@@ -125,6 +125,36 @@ test('spawn: asDuplex', async t => {
   t.equal(text, 'duplex test', 'data round-trips through asDuplex');
 });
 
+test('spawn: stdin abort closes child cleanly', async t => {
+  const cmd = isWindows ? ['findstr', '/r', '.*'] : ['cat'];
+  const sp = spawn(cmd, {stdin: 'pipe', stdout: 'pipe'});
+
+  const writer = sp.stdin.getWriter();
+  await writer.write(new TextEncoder().encode('partial\n'));
+
+  const reason = new Error('test abort');
+  await writer.abort(reason);
+
+  let closedRejection;
+  try {
+    await writer.closed;
+  } catch (e) {
+    closedRejection = e;
+  }
+  t.equal(closedRejection, reason, 'writer.closed rejects with the abort reason');
+
+  // Drain stdout so the child isn't blocked on its pipe before exiting.
+  const reader = sp.stdout.getReader();
+  for (;;) {
+    const {done} = await reader.read();
+    if (done) break;
+  }
+
+  const code = await sp.exited;
+  t.equal(code, 0, 'child exits cleanly after stdin abort');
+  t.equal(sp.finished, true, 'finished is true');
+});
+
 test('spawn: non-zero exit code', async t => {
   const cmd = isWindows ? ['cmd', '/c', 'exit 42'] : ['sh', '-c', 'exit 42'];
   const sp = spawn(cmd, {});
