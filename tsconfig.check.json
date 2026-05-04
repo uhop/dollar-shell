@@ -11,6 +11,6 @@
     "noUnusedParameters": true,
     "strict": false,
     "skipLibCheck": true,
-    "types": ["node", "bun-types", "deno"]
+    "types": ["node", "bun", "deno"]
   }
 }
