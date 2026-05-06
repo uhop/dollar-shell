@@ -8,7 +8,7 @@ on:
       node-version:
         description: 'Node.js version to run tests'
         required: true
-        default: 25
+        default: 26
         type: number
 
 jobs:

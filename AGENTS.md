@@ -7,7 +7,7 @@ For detailed usage docs and API references see the [wiki](https://github.com/uho
 ## Setup
 
 ```bash
-git clone --recursive git@github.com:uhop/dollar-shell.git
+git clone --recursive https://github.com/uhop/dollar-shell.git
 cd dollar-shell
 npm install
 ```
