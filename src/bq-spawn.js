@@ -1,4 +1,4 @@
-import {verifyStrings, isRawValue, getRawValue} from './utils.js';
+import {verifyStrings, isRawValue, getRawValue, bqTagSymbol, isBqTag} from './utils.js';
 
 const appendString = (s, previousSpace, result) => {
   previousSpace ||= /^\s/.test(s);
@@ -69,10 +69,11 @@ const bqSpawn = (spawn, options = {}) => {
     if (verifyStrings(strings)) return impl(spawn, options)(strings, ...args);
     const derived = bqSpawn(spawn, {...options, ...strings});
     for (const [key, value] of Object.entries(bq)) {
-      derived[key] = typeof value === 'function' ? value(strings) : value;
+      derived[key] = isBqTag(value) ? value(strings) : value;
     }
     return derived;
   };
+  /** @type {any} */ (bq)[bqTagSymbol] = true;
   return bq;
 };
 

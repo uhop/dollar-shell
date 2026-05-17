@@ -33,6 +33,9 @@ export const raw = value => ({[rawValueSymbol]: value});
 export const isRawValue = value => value && typeof value === 'object' && rawValueSymbol in value;
 export const getRawValue = value => value[rawValueSymbol];
 
+export const bqTagSymbol = Symbol.for('dollar-shell.bq-tag');
+export const isBqTag = value => typeof value === 'function' && value[bqTagSymbol] === true;
+
 export const winCmdEscape = isWindows
   ? value => raw(String(value).replace(/./g, '^$&'))
   : value => String(value);

@@ -94,3 +94,21 @@ test('bqSpawn: options chaining propagates properties (#7)', t => {
     '.to receives the derived options'
   );
 });
+
+test('bqSpawn: non-bq attached values are copied unchanged across configurator', t => {
+  const $custom = bqSpawn((command, options) => ({command, options}));
+  const plainFn = data => ({plain: true, data});
+  $custom.helper = plainFn;
+  $custom.label = 'tag-v1';
+  $custom.config = {retries: 3};
+
+  const derived = $custom({stderr: 'inherit'});
+  t.equal(derived.helper, plainFn, 'plain function copied by reference, not invoked');
+  t.equal(derived.label, 'tag-v1', 'string value copied');
+  t.equal(derived.config, $custom.config, 'object reference copied');
+  t.deepEqual(
+    derived.helper('payload'),
+    {plain: true, data: 'payload'},
+    'copied function still callable with its real signature'
+  );
+});
