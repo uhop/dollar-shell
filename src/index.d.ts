@@ -215,7 +215,7 @@ export interface DollarResult {
 /**
  * The type of the {@link $} function.
  */
-interface DollarImpl<R = any> extends Dollar<Promise<DollarResult>> {
+export interface DollarImpl<R = any> extends Dollar<Promise<DollarResult>> {
   /**
    * The tag function that can be used as a template string.
    * It can take an options object and return self with updated defaults.
@@ -297,7 +297,7 @@ export declare const sh: typeof shell;
 /**
  * The type of the $sh function.
  */
-interface ShellImpl<R = any> extends Dollar<Promise<DollarResult>, ShellOptions> {
+export interface ShellImpl<R = any> extends Dollar<Promise<DollarResult>, ShellOptions> {
   /**
    * The tag function that can be used as a template string.
    * It can take an options object and return self with updated defaults.

@@ -51,10 +51,10 @@ const throughProcess = bqSpawn((command, options) => {
   return sp.asDuplex;
 });
 
-const $any = /** @type {any} */ ($);
-$any.from = fromProcess;
-$any.to = toProcess;
-$any.through = $any.io = throughProcess;
+const $impl = /** @type {import('./index.d.ts').DollarImpl} */ ($);
+$impl.from = fromProcess;
+$impl.to = toProcess;
+$impl.through = $impl.io = throughProcess;
 
 // define shell functions
 
@@ -102,9 +102,9 @@ const throughShell = bqShell(shellEscape, (command, options) => {
   return sp.asDuplex;
 });
 
-const $shAny = /** @type {any} */ ($sh);
-$shAny.from = fromShell;
-$shAny.to = toShell;
-$shAny.through = $shAny.io = throughShell;
+const $shImpl = /** @type {import('./index.d.ts').ShellImpl} */ ($sh);
+$shImpl.from = fromShell;
+$shImpl.to = toShell;
+$shImpl.through = $shImpl.io = throughShell;
 
 export default $;
