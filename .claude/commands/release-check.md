@@ -46,10 +46,10 @@ Run through this checklist before publishing a new version.
       per substantive release with **bold** feature names; cover internal
       changes, calibration notes, related wiki / repo updates, and credits.
       Per-release date in the heading (use `git for-each-ref --sort=-creatordate
-      --format='%(refname:short) %(creatordate:short)' refs/tags`).
+  --format='%(refname:short) %(creatordate:short)' refs/tags`).
       The wiki is a git submodule — it gets its own commit + parent-pointer bump.
-    Don't update only the README — readers who follow the "for more info"
-    link land on a stale page if you do.
+      Don't update only the README — readers who follow the "for more info"
+      link land on a stale page if you do.
 13. **Cross-runtime test sweep:**
     - `npm test` (Node, parallel)
     - `npm run test:bun` (Bun, parallel)

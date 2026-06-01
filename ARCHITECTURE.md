@@ -10,13 +10,17 @@ dollar-shell/
 ├── tsconfig.json         # Strict TS — checks the .d.ts sidecars
 ├── tsconfig.check.json   # Lint TS — checkJs on .js sources, with @types/{node,bun,deno}
 ├── src/                  # Source code
-│   ├── index.js          # Main entry: dynamic-imports the runtime/platform modules and wires the tag functions
-│   ├── index.d.ts        # TypeScript declarations for the full public API
+│   ├── index.js          # Main (web-streams) entry: selects the runtime backend (with the DSH_FORCE_NODE gate), calls buildApi
+│   ├── index.d.ts        # TypeScript declarations for the full public API (web streams)
+│   ├── build.js          # Shared buildApi(backend): platform shell selection + tag-function wiring; used by both entries
+│   ├── node/             # Node-streams entry: `dollar-shell/node`
+│   │   ├── index.js      # Same API built on the Node backend's raw-streams variant
+│   │   └── index.d.ts    # Node-stream types (reuses the stream-free half of index.d.ts)
 │   ├── bq-spawn.js       # Template tag factory for spawn-based functions ($, $$)
 │   ├── bq-shell.js       # Template tag factory for shell-based functions ($sh, shell)
-│   ├── utils.js          # Shared utilities (raw, isWindows, winCmdEscape, etc.)
+│   ├── utils.js          # Shared utilities (raw, isWindows, winCmdEscape, getEnv, etc.)
 │   ├── spawn/            # Runtime-specific Subprocess implementations
-│   │   ├── node.js       # Node.js: child_process + Readable/Writable.toWeb
+│   │   ├── node.js       # Node.js: child_process; Web streams by default, raw Node streams (+ Duplex) for dollar-shell/node
 │   │   ├── deno.js       # Deno: Deno.Command
 │   │   └── bun.js        # Bun: Bun.spawn (with FileSink → UnderlyingSink adapter)
 │   └── shell/            # Platform-specific shell escaping and command building
@@ -46,30 +50,31 @@ dollar-shell/
 Every public tag function (`$`, `$$`, `$sh`, `shell`, `sh`) supports two call shapes:
 
 ```js
-$`ls -l ${dir}`                    // run with default options
-$(options)`ls -l ${dir}`           // run with custom options
-const $verbose = $({stdout: 'inherit'})  // returns a new tag function
+$`ls -l ${dir}`; // run with default options
+$(options)`ls -l ${dir}`; // run with custom options
+const $verbose = $({stdout: 'inherit'}); // returns a new tag function
 ```
 
 Calling a tag function with an options object returns a new tag function with updated defaults while preserving its `.from` / `.to` / `.io` / `.through` properties. The factories live in `src/bq-spawn.js` (for `$` / `$$`) and `src/bq-shell.js` (for `$sh` / `shell`).
 
-### Runtime detection
+### Runtime detection and the shared builder
 
-`src/index.js` runs once at import time:
+`src/index.js` runs once at import time. It selects a backend, then hands it to `buildApi()` (`src/build.js`), which does the platform shell selection and wires up every tag function (`$`, `$$`, `$sh`, `shell`, with `.from` / `.to` / `.through` / `.io`). Backend selection:
 
-1. `typeof Deno !== 'undefined'` → `await import('./spawn/deno.js')`.
-2. `typeof Bun !== 'undefined'` → `await import('./spawn/bun.js')`.
-3. Otherwise → `await import('./spawn/node.js')`.
+1. force-Node flag set (`globalThis.DSH_FORCE_NODE` or the `DSH_FORCE_NODE` env var) → `await import('./spawn/node.js')` — forces the Node backend on every runtime, so Bun/Deno run on their `node:child_process` compat.
+2. `typeof Deno !== 'undefined'` → `await import('./spawn/deno.js')`.
+3. `typeof Bun !== 'undefined'` → `await import('./spawn/bun.js')`.
+4. Otherwise → `await import('./spawn/node.js')`.
 
-Each runtime module exposes the same `Subprocess` shape, typed in `src/index.d.ts`. Runtime quirks are absorbed inside `src/spawn/<runtime>.js` so consumers see a uniform API.
+Each runtime module exposes the same `Subprocess` shape, typed in `src/index.d.ts`. Runtime quirks are absorbed inside `src/spawn/<runtime>.js` so consumers see a uniform API. Because the tag-function wiring lives in `buildApi`, the `dollar-shell/node` entry (`src/node/index.js`) reuses it verbatim — it just passes the Node backend's raw-streams variant.
 
 ### Platform detection
 
 `isWindows` (from `src/utils.js`) selects between `src/shell/unix.js` and `src/shell/windows.js` for shell escaping and command building.
 
-### Web streams everywhere
+### Streams: web by default, Node on demand
 
-`Subprocess.stdin` is a `WritableStream`, `stdout` and `stderr` are `ReadableStream`. Cross-runtime parity for the default-reader API is verified; the only documented divergence is BYOB readers (Deno-only). See `wiki/Cross-runtime-notes.md`.
+The main entry (`dollar-shell`) exposes `Subprocess.stdin` as a `WritableStream`, `stdout` / `stderr` as `ReadableStream`, and `asDuplex` as a `{readable, writable}` pair. The `dollar-shell/node` entry exposes the identical API with **Node** streams instead — `stdin` a `Writable`, `stdout` / `stderr` `Readable`, and `asDuplex` / `.io` / `.through` a Node `Duplex` (so a process drops straight into a `.pipe()` chain or `stream.pipeline()`). It always uses the Node backend's raw-streams variant, which skips `Readable/Writable.toWeb`. Cross-runtime parity for the default-reader web API is verified; the only documented divergence is BYOB readers (Deno-only). See `wiki/Cross-runtime-notes.md`.
 
 ### `raw()`
 
@@ -78,14 +83,17 @@ Each runtime module exposes the same `Subprocess` shape, typed in `src/index.d.t
 ## Module dependency graph
 
 ```
-src/index.js ─── src/utils.js
-              ├─ src/bq-spawn.js
-              ├─ src/bq-shell.js
-              ├─ src/spawn/{node,deno,bun}.js   (one chosen at import)
-              └─ src/shell/{unix,windows}.js    (one chosen at import)
+src/index.js ────── src/utils.js (getEnv — the DSH_FORCE_NODE flag)
+                 ├─ src/spawn/{node,deno,bun}.js   (one chosen at import)
+                 └─ src/build.js ─── src/utils.js (isWindows, raw, winCmdEscape)
+                                  ├─ src/bq-spawn.js
+                                  ├─ src/bq-shell.js
+                                  └─ src/shell/{unix,windows}.js   (one chosen at build)
+
+src/node/index.js ─ src/build.js + src/spawn/node.js (raw-streams variant)
 ```
 
-`src/index.js` is the only file that does the dynamic `import()` — every other module is statically imported.
+`src/index.js` dynamic-imports the runtime backend; `src/build.js` dynamic-imports the platform shell module. `src/node/index.js` reuses `buildApi` with the Node backend statically imported.
 
 ## Cross-runtime testing
 
@@ -96,7 +104,7 @@ Three runners, three configurations — all run the same `tests/test-*.js` files
 - `npm run test:deno` — Deno, parallel
 - `npm run test:seq[:bun|:deno]` — sequential variants for debugging
 
-The cross-runtime test matrix is the truth for any change to `src/spawn/*.js` or `src/index.js`. Type checks (`ts-check`, `js-check`) catch type-level issues but do not substitute for the runtime matrix because Bun- and Deno-specific code paths are gated behind the dynamic `import()` and only run on the matching runtime.
+The cross-runtime test matrix is the truth for any change to `src/spawn/*.js`, `src/build.js`, `src/index.js`, or `src/node/`. Type checks (`ts-check`, `js-check`) catch type-level issues but do not substitute for the runtime matrix because Bun- and Deno-specific code paths are gated behind the dynamic `import()` and only run on the matching runtime.
 
 ## TypeScript: dual config
 

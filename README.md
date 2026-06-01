@@ -269,6 +269,7 @@ BSD-3-Clause
 
 ## Release History
 
+- 1.2.0 _Added `dollar-shell/node` with Node streams and a `DSH_FORCE_NODE` flag to force the Node backend on any runtime._
 - 1.1.14 _Fixed Bun stdin abort path, added js-check, Bun + Deno wired into CI._
 - 1.1.13 _Updated dev dependencies._
 - 1.1.12 _Consolidated TypeScript tests into `tests/`, removed `ts-check/`, added CJS test, improved test coverage and documentation._

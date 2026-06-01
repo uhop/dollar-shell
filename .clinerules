@@ -1,14 +1,14 @@
 <!-- Canonical source: AGENTS.md — keep this file in sync -->
 # AGENTS.md — dollar-shell
 
-> `dollar-shell` is a micro-library for running OS and shell commands from JavaScript/TypeScript using template tag functions. It works on Node, Deno, and Bun with the same API. All streams are web streams. Zero dependencies.
+> `dollar-shell` is a micro-library for running OS and shell commands from JavaScript/TypeScript using template tag functions. It works on Node, Deno, and Bun with the same API. Streams are web streams by default; the `dollar-shell/node` entry offers the same API with Node streams. Zero dependencies.
 
 For detailed usage docs and API references see the [wiki](https://github.com/uhop/dollar-shell/wiki).
 
 ## Setup
 
 ```bash
-git clone --recursive git@github.com:uhop/dollar-shell.git
+git clone --recursive https://github.com/uhop/dollar-shell.git
 cd dollar-shell
 npm install
 ```
@@ -34,13 +34,15 @@ dollar-shell/
 ├── tsconfig.json         # Strict TS config — checks the .d.ts sidecars
 ├── tsconfig.check.json   # Lint config — checkJs on .js sources, with @types/{node,bun,deno} for cross-runtime globals
 ├── src/                  # Source code
-│   ├── index.js      # Main entry point, wires everything together
+│   ├── index.js      # Main (web-streams) entry: backend selection (+ DSH_FORCE_NODE gate) → buildApi
 │   ├── index.d.ts    # TypeScript declarations for the full public API
+│   ├── build.js      # Shared buildApi(backend): shell selection + tag-function wiring (both entries use it)
+│   ├── node/         # `dollar-shell/node` entry — same API, Node streams instead of web streams
 │   ├── bq-spawn.js   # Template tag factory for spawn-based functions ($, $$)
 │   ├── bq-shell.js   # Template tag factory for shell-based functions ($sh, shell)
-│   ├── utils.js      # Shared utilities (raw, isWindows, winCmdEscape, etc.)
+│   ├── utils.js      # Shared utilities (raw, isWindows, winCmdEscape, getEnv, etc.)
 │   ├── spawn/        # Runtime-specific Subprocess implementations
-│   │   ├── node.js   # Node.js: uses child_process + stream.Writable/Readable
+│   │   ├── node.js   # Node.js: child_process; web streams by default, raw Node streams for dollar-shell/node
 │   │   ├── deno.js   # Deno: uses Deno.Command
 │   │   └── bun.js    # Bun: uses Bun.spawn
 │   └── shell/        # Platform-specific shell escaping and command building
@@ -85,7 +87,8 @@ await $verbose`ls -l .`;
 
 ## Architecture
 
-- `src/index.js` is the main entry point. It dynamically imports the correct `spawn` implementation (Node/Deno/Bun) and the correct `shell` implementation (Unix/Windows) at import time.
+- `src/index.js` is the main entry point. At import time it selects the runtime backend, then calls `buildApi()` (`src/build.js`), which picks the platform shell module and wires up the tag functions. Setting `globalThis.DSH_FORCE_NODE` or the `DSH_FORCE_NODE` env var forces the Node backend on every runtime (Bun/Deno via their `node:child_process` compat).
+- `dollar-shell/node` (`src/node/index.js`) is a second entry: the identical API built by the same `buildApi`, but on the Node backend's raw-streams variant, so `stdin`/`stdout`/`stderr` are Node streams (and `asDuplex`/`.io`/`.through` a Node `Duplex`) instead of web streams.
 - All tag functions (`$`, `$$`, `$sh`, `shell`) are built by factory functions in `bq-spawn.js` and `bq-shell.js`.
 - **Tag function + options pattern**: calling a tag function with an options object returns a new tag function with updated defaults while preserving `.from`, `.to`, `.io`, `.through` properties.
 - **raw()**: wraps a value to bypass escaping (shell) or argument splitting (spawn).
@@ -94,7 +97,7 @@ await $verbose`ls -l .`;
 ## Key conventions
 
 - Do not add runtime dependencies — the library is intentionally zero-dependency. DevDeps for tooling (`@types/node`, `@types/bun`, `@types/deno`, `prettier`, `tape-six`, `typescript`) are fine.
-- All public API is exported from `src/index.js` and typed in `src/index.d.ts`. Keep them in sync.
+- The public API is exported from `src/index.js` (typed in `src/index.d.ts`) and the parallel `dollar-shell/node` entry from `src/node/index.js` (typed in `src/node/index.d.ts`, which reuses the stream-free half of `index.d.ts`). Keep each `.js` and its `.d.ts` in sync.
 - Wiki documentation lives in the `wiki/` submodule — update it alongside code changes. Cross-runtime behavior asymmetries (e.g. BYOB readers — only Deno supports them) are documented at `wiki/Cross-runtime-notes.md`.
 - Tests are in `tests/` (automated, tape-six) and `tests/manual/` (manual verification scripts).
 - TypeScript typing tests (`.ts`) are in `tests/` and checked by `npm run ts-check`. They can also be run as tests via `npm run ts-test`.

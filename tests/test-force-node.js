@@ -9,11 +9,12 @@ const echoCmd = text =>
 // The query string makes the dynamic import re-evaluate index.js (re-running the
 // load-time backend selection) instead of returning the cached instance.
 const loadForced = async () => {
-  /** @type {any} */ (globalThis).DSH_FORCE_NODE = true;
+  const g = /** @type {any} */ (globalThis);
+  g.DSH_FORCE_NODE = true;
   try {
     return await import('../src/index.js?dsh-force-node');
   } finally {
-    delete (/** @type {any} */ (globalThis)).DSH_FORCE_NODE;
+    delete g.DSH_FORCE_NODE;
   }
 };
 
