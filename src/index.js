@@ -35,16 +35,21 @@ const envForceNode = () => {
 const forceNode =
   isFlagOn(/** @type {any} */ (globalThis).DSH_FORCE_NODE) || isFlagOn(envForceNode());
 
-let modSpawn;
-if (forceNode) {
-  modSpawn = await import('./spawn/node.js');
-} else if (typeof Deno !== 'undefined') {
-  modSpawn = await import('./spawn/deno.js');
+// The runtime-native backend defines how to launch *this* runtime — `currentExecPath`,
+// `runFileArgs`, `cwd`. DSH_FORCE_NODE forces only the spawn *implementation*
+// (`node:child_process`); it must not change which runtime we target or how it is
+// invoked, so a forced child of Bun/Deno is still `bun run …` / `deno run …`, never a
+// bare `node`. (`process.execPath` is already the real runtime under Bun/Deno node
+// compat; `runFileArgs` is what actually differs — `[]` for node vs `['run']`.)
+let modRuntime;
+if (typeof Deno !== 'undefined') {
+  modRuntime = await import('./spawn/deno.js');
 } else if (typeof Bun !== 'undefined') {
-  modSpawn = await import('./spawn/bun.js');
+  modRuntime = await import('./spawn/bun.js');
 } else {
-  modSpawn = await import('./spawn/node.js');
+  modRuntime = await import('./spawn/node.js');
 }
+const modSpawn = forceNode ? await import('./spawn/node.js') : modRuntime;
 
 export const {
   spawn,
@@ -59,6 +64,11 @@ export const {
   shell,
   sh,
   $sh
-} = await buildApi(modSpawn);
+} = await buildApi({
+  spawn: modSpawn.spawn,
+  cwd: modRuntime.cwd,
+  currentExecPath: modRuntime.currentExecPath,
+  runFileArgs: modRuntime.runFileArgs
+});
 
 export default $;

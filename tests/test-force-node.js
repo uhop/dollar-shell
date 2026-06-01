@@ -1,6 +1,6 @@
 import test from 'tape-six';
 
-import {isWindows} from '../src/index.js';
+import {isWindows, runFileArgs as nativeRunFileArgs} from '../src/index.js';
 
 const echoCmd = text =>
   isWindows ? ['node', '-e', `process.stdout.write(${JSON.stringify(text)})`] : ['echo', text];
@@ -18,15 +18,21 @@ const loadForced = async () => {
   }
 };
 
-test('DSH_FORCE_NODE selects the Node backend on every runtime', async t => {
+test('DSH_FORCE_NODE forces the Node spawn backend only — the launcher stays runtime-native', async t => {
   const forced = await loadForced();
 
-  // The Node backend ships an empty `runFileArgs`; the Deno and Bun natives use ['run'].
-  // So this is `[]` on every runtime precisely because the Node backend was forced.
-  t.deepEqual(forced.runFileArgs, [], 'forced backend reports the Node runFileArgs');
+  // DSH_FORCE_NODE forces only the spawn *implementation* (node:child_process); it must
+  // NOT change how this runtime is launched. So currentExecPath / runFileArgs stay
+  // runtime-native — a forced child of Bun/Deno is still `bun run …` / `deno run …`, not
+  // a bare `node`. (Forcing node's `[]` here broke Deno: `deno -A file` sends -A to V8.)
+  t.deepEqual(
+    forced.runFileArgs,
+    nativeRunFileArgs,
+    'forced backend keeps the runtime-native runFileArgs'
+  );
 
   // And the forced backend actually spawns (Bun/Deno via their node:child_process compat).
   const sp = forced.spawn(echoCmd('hi'), {stdout: 'pipe'});
   const code = await sp.exited;
-  t.equal(code, 0, 'a process runs under the forced Node backend');
+  t.equal(code, 0, 'a process runs under the forced Node spawn backend');
 });
