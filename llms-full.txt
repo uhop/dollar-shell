@@ -331,3 +331,13 @@ const {$} = await import('dollar-shell');
 ```
 
 This is useful to sidestep runtime-specific quirks (e.g. Bun intermittently dropping the final chunk of a child's piped Web-Stream output; the Node backend delivers it reliably). On Deno, reading the environment variable needs `--allow-env` (otherwise use the `globalThis` flag — importing never prompts). Forcing the Node backend on Deno makes `stdout` a regular (non-byte) ReadableStream, so BYOB readers are unavailable there.
+
+### Node streams (`dollar-shell/node`)
+
+The package also ships a Node-streams facade at `dollar-shell/node`:
+
+```js
+import {$, $$, $sh, shell, sh, spawn} from 'dollar-shell/node';
+```
+
+The API is identical to the main entry, except `stdin`/`stdout`/`stderr` (and `.from`/`.to`/`.through`/`.io`/`asDuplex`) are Node streams (`Readable`/`Writable` from `node:stream`) instead of Web streams. This is convenient for direct Node-ecosystem interop — pipe straight into `fs`/`zlib`/etc. with no Web↔Node adapter, and skip the conversion. It always uses the Node backend, so on Bun and Deno it runs through their `node:child_process` compatibility layer. Type declarations live in `src/node/index.d.ts`.

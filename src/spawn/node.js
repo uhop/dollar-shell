@@ -18,7 +18,7 @@ const setStdio = (stdio, fd, value) => {
 };
 
 class Subprocess {
-  constructor(command, options) {
+  constructor(command, options, nodeStreams) {
     this.command = command;
     this.options = options;
 
@@ -67,9 +67,15 @@ class Subprocess {
       this.reject(error);
     });
 
-    this.stdin = this.childProcess.stdin && Writable.toWeb(this.childProcess.stdin);
-    this.stdout = this.childProcess.stdout && Readable.toWeb(this.childProcess.stdout);
-    this.stderr = this.childProcess.stderr && Readable.toWeb(this.childProcess.stderr);
+    if (nodeStreams) {
+      this.stdin = this.childProcess.stdin || null;
+      this.stdout = this.childProcess.stdout || null;
+      this.stderr = this.childProcess.stderr || null;
+    } else {
+      this.stdin = this.childProcess.stdin && Writable.toWeb(this.childProcess.stdin);
+      this.stdout = this.childProcess.stdout && Readable.toWeb(this.childProcess.stdout);
+      this.stderr = this.childProcess.stderr && Readable.toWeb(this.childProcess.stderr);
+    }
   }
 
   get asDuplex() {
@@ -88,4 +94,7 @@ export const runFileArgs = [];
 export const cwd = () => process.cwd();
 
 const nodeSpawn = (command, options = {}) => new Subprocess(command, options);
-export {nodeSpawn as spawn};
+// Variant that keeps raw Node streams (no Web Streams conversion) — backs the
+// `dollar-shell/node` facade. Internal: reached only through that entry.
+const nodeStreamSpawn = (command, options = {}) => new Subprocess(command, options, true);
+export {nodeSpawn as spawn, nodeStreamSpawn};

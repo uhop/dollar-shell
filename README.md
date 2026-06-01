@@ -229,6 +229,24 @@ runtime-specific quirks (e.g. Bun intermittently dropping the last chunk of a ch
 The backend is selected once, at import time, so the in-process flag must be set before `import`.
 See the [Cross-runtime notes](https://github.com/uhop/dollar-shell/wiki/Cross-runtime-notes) for details.
 
+## Node streams (`dollar-shell/node`)
+
+The default entry exposes [web streams](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API) on
+`stdin`/`stdout`/`stderr`. If you'd rather work with Node streams — to pipe straight into `fs`/`zlib`/etc.
+with no Web&harr;Node adapter, or to skip the conversion — import from `dollar-shell/node` instead:
+
+```js
+import {spawn} from 'dollar-shell/node';
+
+const sp = spawn(['cat', 'file.txt'], {stdout: 'pipe'});
+sp.stdout.pipe(process.stdout); // sp.stdout is a Node Readable
+```
+
+The API is identical to the main entry — same `$`, `$$`, `$sh`, `shell`, helpers, and
+`.from`/`.to`/`.through`/`.io` — only the stream types differ (`stdin` is a Node `Writable`, `stdout`/`stderr`
+are Node `Readable`s). It always uses the Node backend, so it also runs on Bun and Deno through their
+`node:child_process` compatibility layer.
+
 ## For AI Agents
 
 This package ships with files to help AI coding agents and LLMs find, understand, and use it:

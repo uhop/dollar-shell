@@ -67,6 +67,10 @@ await $sh({stdout: 'inherit'})`echo ${raw('"hello"')}`;
 
 By default each runtime uses its native backend. Set the `DSH_FORCE_NODE` environment variable, or `globalThis.DSH_FORCE_NODE = true` before importing, to force the Node backend on every runtime (Bun and Deno then run on their `node:child_process` compatibility layer). Useful to sidestep runtime-specific quirks. The backend is selected once, at import time. Treated as off: unset, `''`, `0`, `false`.
 
+## Node streams (`dollar-shell/node`)
+
+`import {$, $$, $sh, shell, spawn} from 'dollar-shell/node'` gives the identical API, but `stdin`/`stdout`/`stderr` (and `.from`/`.to`/`.through`/`.io`/`asDuplex`) are Node streams (`Readable`/`Writable` from `node:stream`) instead of Web streams — for direct Node-ecosystem piping with no adapter. Always uses the Node backend (runs on Bun/Deno via their `node:child_process` compat).
+
 ## Docs
 
 - [$ (dollar)](https://github.com/uhop/dollar-shell/wiki/$): Spawn processes with simple return values, includes $.from, $.to, $.io/$.through
