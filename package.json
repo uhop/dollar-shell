@@ -28,9 +28,6 @@
     "/src",
     "LICENSE",
     "README.md",
-    "AGENTS.md",
-    "CLAUDE.md",
-    "CONTRIBUTING.md",
     "llms.txt",
     "llms-full.txt"
   ],
@@ -70,6 +67,9 @@
     "url": "https://github.com/sponsors/uhop"
   },
   "license": "BSD-3-Clause",
+  "engines": {
+    "node": ">=22"
+  },
   "devDependencies": {
     "@types/bun": "^1.3.13",
     "@types/deno": "^2.5.0",

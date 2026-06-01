@@ -229,7 +229,7 @@ This package ships with files to help AI coding agents and LLMs find, understand
 - **[llms.txt](./llms.txt)** — Concise project overview following the [llms.txt standard](https://llmstxt.org/).
 - **[llms-full.txt](./llms-full.txt)** — Self-contained complete API reference (no external links needed).
 
-All files are included in the npm package.
+The machine-readable `llms.txt` and `llms-full.txt` ship inside the npm package, so AI tools can read them straight from `node_modules`. `AGENTS.md` and `CLAUDE.md` are authoring-side docs kept in the repository.
 
 ## License
 

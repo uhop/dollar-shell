@@ -13,7 +13,7 @@ npm i --save dollar-shell
 ## Usage
 
 ```js
-import $, {$$, $sh, shell, sh, spawn} from 'dollar-shell';
+import {$, $$, $sh, shell, sh, spawn} from 'dollar-shell';
 ```
 
 ## spawn()

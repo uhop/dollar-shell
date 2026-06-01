@@ -37,7 +37,7 @@ Utilities: `raw()`, `winCmdEscape()`, `isWindows`, `cwd()`, `currentExecPath()`,
 ## Common patterns
 
 ```js
-import $, {$$, $sh, raw} from 'dollar-shell';
+import {$, $$, $sh, raw} from 'dollar-shell';
 
 // Simple command
 const result = await $`echo hello`;

@@ -53,7 +53,7 @@ dollar-shell/
 ## Quick reference
 
 ```js
-import $, {$$, $sh, shell, sh, spawn} from 'dollar-shell';
+import {$, $$, $sh, shell, sh, spawn} from 'dollar-shell';
 
 // Run a command, get exit info
 const result = await $`echo hello`;
