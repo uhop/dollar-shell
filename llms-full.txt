@@ -315,3 +315,19 @@ Full TypeScript declarations are provided in `src/index.d.ts`. The package uses 
 ## Platform Support
 
 Works on Node.js, Deno, and Bun. The appropriate spawn implementation is selected automatically at import time. All streams use the web streams API (ReadableStream/WritableStream).
+
+### Forcing the Node backend
+
+By default each runtime uses its own backend (`node:child_process` on Node, `Bun.spawn` on Bun, `Deno.Command` on Deno). Force every runtime onto the Node backend — so Bun and Deno run on their `node:child_process` compatibility layer — via either:
+
+- the `DSH_FORCE_NODE` environment variable (any value except `''`, `0`, `false`), or
+- `globalThis.DSH_FORCE_NODE = true` set **before importing** `dollar-shell`.
+
+The backend is chosen once, at import time, so the in-process flag must be set first:
+
+```js
+globalThis.DSH_FORCE_NODE = true;
+const {$} = await import('dollar-shell');
+```
+
+This is useful to sidestep runtime-specific quirks (e.g. Bun intermittently dropping the final chunk of a child's piped Web-Stream output; the Node backend delivers it reliably). On Deno, reading the environment variable needs `--allow-env` (otherwise use the `globalThis` flag — importing never prompts). Forcing the Node backend on Deno makes `stdout` a regular (non-byte) ReadableStream, so BYOB readers are unavailable there.

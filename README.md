@@ -219,6 +219,16 @@ the spawn options with the following properties:
 
 The rest is identical to `$`: `$sh`, `$sh.from`, `$sh.to` and `$sh.io`/`$sh.through`.
 
+## Forcing the Node backend
+
+Each runtime uses its own backend by default (`node:child_process` on Node, `Bun.spawn` on Bun,
+`Deno.Command` on Deno). Set the `DSH_FORCE_NODE` environment variable, or
+`globalThis.DSH_FORCE_NODE = true` before importing, to force every runtime onto the Node backend &mdash;
+Bun and Deno then run on their `node:child_process` compatibility layer. This is handy for sidestepping
+runtime-specific quirks (e.g. Bun intermittently dropping the last chunk of a child's piped output).
+The backend is selected once, at import time, so the in-process flag must be set before `import`.
+See the [Cross-runtime notes](https://github.com/uhop/dollar-shell/wiki/Cross-runtime-notes) for details.
+
 ## For AI Agents
 
 This package ships with files to help AI coding agents and LLMs find, understand, and use it:
