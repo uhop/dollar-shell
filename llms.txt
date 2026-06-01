@@ -65,7 +65,7 @@ await $sh({stdout: 'inherit'})`echo ${raw('"hello"')}`;
 
 ## Forcing the Node backend
 
-By default each runtime uses its native backend. Set the `DSH_FORCE_NODE` environment variable, or `globalThis.DSH_FORCE_NODE = true` before importing, to force the Node backend on every runtime (Bun and Deno then run on their `node:child_process` compatibility layer). Useful to sidestep runtime-specific quirks. The backend is selected once, at import time. Treated as off: unset, `''`, `0`, `false`.
+By default each runtime uses its native backend. Set the `DSH_FORCE_NODE` environment variable (e.g. `DSH_FORCE_NODE=1`) to force the Node backend on every runtime (Bun and Deno then run on their `node:child_process` compat). Because dollar-shell's `env` option defaults to `process.env`, spawned children inherit the variable, so it forces the whole process tree; to force only the current process (no leak to children), set `globalThis.DSH_FORCE_NODE = true` before a dynamic `import()` instead (process-local). Useful to sidestep runtime-specific quirks. The backend is selected once, at import time. Treated as off: unset, `''`, `0`, `false`.
 
 ## Node streams (`dollar-shell/node`)
 

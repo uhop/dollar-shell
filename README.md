@@ -222,11 +222,15 @@ The rest is identical to `$`: `$sh`, `$sh.from`, `$sh.to` and `$sh.io`/`$sh.thro
 ## Forcing the Node backend
 
 Each runtime uses its own backend by default (`node:child_process` on Node, `Bun.spawn` on Bun,
-`Deno.Command` on Deno). Set the `DSH_FORCE_NODE` environment variable, or
-`globalThis.DSH_FORCE_NODE = true` before importing, to force every runtime onto the Node backend &mdash;
-Bun and Deno then run on their `node:child_process` compatibility layer. This is handy for sidestepping
-runtime-specific quirks (e.g. Bun intermittently dropping the last chunk of a child's piped output).
-The backend is selected once, at import time, so the in-process flag must be set before `import`.
+`Deno.Command` on Deno). Set the **`DSH_FORCE_NODE` environment variable** (e.g. `DSH_FORCE_NODE=1`) to
+force every runtime onto the Node backend &mdash; Bun and Deno then run on their `node:child_process`
+compatibility layer. This is handy for sidestepping runtime-specific quirks (e.g. Bun intermittently
+dropping the last chunk of a child's piped output).
+
+Because dollar-shell spawns children with `env` defaulting to `process.env`, the variable is inherited by
+those children &mdash; so it forces the Node backend across the whole process tree. To force **only the
+current process** (no leak to spawned children), set `globalThis.DSH_FORCE_NODE = true` before importing
+instead; it's process-local, but requires a dynamic `import()` (the backend is chosen once, at import time).
 See the [Cross-runtime notes](https://github.com/uhop/dollar-shell/wiki/Cross-runtime-notes) for details.
 
 ## Node streams (`dollar-shell/node`)

@@ -8,6 +8,11 @@ import {buildApi} from './build.js';
 
 export {isWindows, raw, winCmdEscape} from './utils.js';
 
+// Force the Node backend on every runtime with the `DSH_FORCE_NODE` environment
+// variable (e.g. DSH_FORCE_NODE=1) — Bun/Deno then run on their Node compat (e.g. to
+// sidestep Bun's Web-Stream child-pipe tail-drop). The env var is inherited by spawned
+// children; to force only this process, set `globalThis.DSH_FORCE_NODE` before a dynamic
+// import instead. Treated as off: unset, '', '0', 'false'.
 const isFlagOn = value =>
   value != null &&
   value !== '' &&
