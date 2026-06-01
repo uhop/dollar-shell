@@ -34,8 +34,6 @@ dollar-shell/
 ├── AGENTS.md             # AI agent rules and project conventions
 ├── CLAUDE.md             # Pointer to AGENTS.md
 ├── CONTRIBUTING.md       # Contribution guidelines
-├── .windsurf/workflows/  # Windsurf multi-step workflows
-├── .claude/commands/     # Claude Code slash-command equivalents
 └── .github/
     ├── workflows/        # CI: tests.yml runs Node/Bun/Deno × ubuntu/windows/macOS
     ├── COPILOT-INSTRUCTIONS.md  # Pointer to AGENTS.md
