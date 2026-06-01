@@ -69,7 +69,7 @@ By default each runtime uses its native backend. Set the `DSH_FORCE_NODE` enviro
 
 ## Node streams (`dollar-shell/node`)
 
-`import {$, $$, $sh, shell, spawn} from 'dollar-shell/node'` gives the identical API, but `stdin`/`stdout`/`stderr` (and `.from`/`.to`/`.through`/`.io`/`asDuplex`) are Node streams (`Readable`/`Writable` from `node:stream`) instead of Web streams — for direct Node-ecosystem piping with no adapter. Always uses the Node backend (runs on Bun/Deno via their `node:child_process` compat).
+`import {$, $$, $sh, shell, spawn} from 'dollar-shell/node'` gives the identical API, but `stdin`/`stdout`/`stderr` are Node `Readable`/`Writable` (and `.io`/`.through`/`asDuplex` a Node `Duplex`) instead of Web streams — for direct Node-ecosystem piping with no adapter. Always uses the Node backend (runs on Bun/Deno via their `node:child_process` compat).
 
 ## Docs
 

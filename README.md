@@ -244,7 +244,7 @@ sp.stdout.pipe(process.stdout); // sp.stdout is a Node Readable
 
 The API is identical to the main entry — same `$`, `$$`, `$sh`, `shell`, helpers, and
 `.from`/`.to`/`.through`/`.io` — only the stream types differ (`stdin` is a Node `Writable`, `stdout`/`stderr`
-are Node `Readable`s). It always uses the Node backend, so it also runs on Bun and Deno through their
+are Node `Readable`s, and `asDuplex` / `.io` / `.through` return a Node `Duplex`). It always uses the Node backend, so it also runs on Bun and Deno through their
 `node:child_process` compatibility layer.
 
 ## For AI Agents

@@ -1,5 +1,5 @@
 import {spawn} from 'node:child_process';
-import {Readable, Writable} from 'node:stream';
+import {Readable, Writable, Duplex} from 'node:stream';
 
 const setStdio = (stdio, fd, value) => {
   switch (value) {
@@ -18,6 +18,9 @@ const setStdio = (stdio, fd, value) => {
 };
 
 class Subprocess {
+  #nodeStreams;
+  #asDuplex;
+
   constructor(command, options, nodeStreams) {
     this.command = command;
     this.options = options;
@@ -67,6 +70,7 @@ class Subprocess {
       this.reject(error);
     });
 
+    this.#nodeStreams = nodeStreams;
     if (nodeStreams) {
       this.stdin = this.childProcess.stdin || null;
       this.stdout = this.childProcess.stdout || null;
@@ -79,7 +83,15 @@ class Subprocess {
   }
 
   get asDuplex() {
-    return {readable: this.stdout, writable: this.stdin};
+    // Web-streams mode keeps the `{readable, writable}` pair (the pipeThrough shape).
+    // Node-streams mode returns a real Node `Duplex` (built lazily, once) so the process
+    // drops straight into `.pipe()` chains and `stream.pipeline()`.
+    if (!this.#nodeStreams) return {readable: this.stdout, writable: this.stdin};
+    // `@types/node` types `Duplex.from({readable, writable})` for Web streams only,
+    // but at runtime it accepts a Node readable + writable just fine.
+    return (this.#asDuplex ??= Duplex.from(
+      /** @type {any} */ ({readable: this.stdout, writable: this.stdin})
+    ));
   }
 
   kill() {

@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import type {Readable, Writable} from 'node:stream';
+import type {Readable, Writable, Duplex} from 'node:stream';
 import type {
   SpawnStreamState,
   SpawnOptions,
@@ -21,20 +21,6 @@ export {
   currentShellPath,
   buildShellCommand
 } from '../index.js';
-
-/**
- * Object with readable and writable Node streams. It can be used as a duplex stream.
- */
-interface DuplexPair {
-  /**
-   * The readable stream.
-   */
-  readable: Readable;
-  /**
-   * The writable stream.
-   */
-  writable: Writable;
-}
 
 /**
  * Sub-process object. Identical to the main entry's `Subprocess`, except the standard
@@ -85,9 +71,10 @@ export interface Subprocess {
    */
   readonly stderr: Readable | null;
   /**
-   * A duplex pair `{readable: this.stdout, writable: this.stdin}`.
+   * The process as a Node `Duplex` stream: writes go to `stdin`, reads come from `stdout`.
+   * Built lazily on first access (and cached). Requires both `stdin` and `stdout` piped.
    */
-  readonly asDuplex: DuplexPair;
+  readonly asDuplex: Duplex;
   /**
    * Kill the process.
    */
@@ -130,13 +117,13 @@ export interface DollarImpl extends Dollar<Promise<DollarResult>> {
    */
   to: Dollar<Writable>;
   /**
-   * Returns the `stdin`/`stdout` of the process as a {@link DuplexPair}. Alias of `io`.
+   * Returns the process as a Node `Duplex` stream. Alias of `io`.
    */
-  through: Dollar<DuplexPair>;
+  through: Dollar<Duplex>;
   /**
-   * Returns the `stdin`/`stdout` of the process as a {@link DuplexPair}. Alias of `through`.
+   * Returns the process as a Node `Duplex` stream. Alias of `through`.
    */
-  io: Dollar<DuplexPair>;
+  io: Dollar<Duplex>;
 }
 
 /**
@@ -167,13 +154,13 @@ export interface ShellImpl extends Dollar<Promise<DollarResult>, ShellOptions> {
    */
   to: Dollar<Writable, ShellOptions>;
   /**
-   * Returns the `stdin`/`stdout` of the shell process as a {@link DuplexPair}. Alias of `io`.
+   * Returns the shell process as a Node `Duplex` stream. Alias of `io`.
    */
-  through: Dollar<DuplexPair, ShellOptions>;
+  through: Dollar<Duplex, ShellOptions>;
   /**
-   * Returns the `stdin`/`stdout` of the shell process as a {@link DuplexPair}. Alias of `through`.
+   * Returns the shell process as a Node `Duplex` stream. Alias of `through`.
    */
-  io: Dollar<DuplexPair, ShellOptions>;
+  io: Dollar<Duplex, ShellOptions>;
 }
 
 /**
