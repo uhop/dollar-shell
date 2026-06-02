@@ -318,11 +318,13 @@ Works on Node.js, Deno, and Bun. The appropriate spawn implementation is selecte
 
 ### Forcing the Node backend
 
-By default each runtime uses its own backend (`node:child_process` on Node, `Bun.spawn` on Bun, `Deno.Command` on Deno). Force every runtime onto the Node backend — so Bun and Deno run on their `node:child_process` compatibility layer — with the **`DSH_FORCE_NODE` environment variable** (any value except `''`, `0`, `false`):
+By default each runtime uses its own backend (`node:child_process` on Node, `Bun.spawn` on Bun, `Deno.Command` on Deno). Make every runtime spawn through the Node backend — so Bun and Deno run `node:child_process` on their compatibility layer — with the **`DSH_FORCE_NODE` environment variable** (any value except `''`, `0`, `false`):
 
 ```bash
 DSH_FORCE_NODE=1 node app.js
 ```
+
+This swaps **only the spawn mechanism**. The runtime that executes your scripts and the way dollar-shell re-launches the current runtime (`currentExecPath` / `runFileArgs` / `cwd`) stay native — a forced child of Bun or Deno is still launched as `bun run …` / `deno run …`, never a bare `node`.
 
 dollar-shell's `env` option defaults to `process.env`, so spawned children inherit the variable — the environment variable therefore forces the Node backend across the **whole process tree** (this process and every dollar-shell child it spawns), which is usually what you want for a build script or wrapper.
 
@@ -345,4 +347,4 @@ The package also ships a Node-streams facade at `dollar-shell/node`:
 import {$, $$, $sh, shell, sh, spawn} from 'dollar-shell/node';
 ```
 
-The API is identical to the main entry, except the streams are Node streams (from `node:stream`) instead of Web streams: `stdin`/`stdout`/`stderr` are a Node `Writable`/`Readable`, and `.io`/`.through`/`asDuplex` return a Node `Duplex` (so a process drops straight into a `.pipe()` chain or `stream.pipeline()`). This is convenient for direct Node-ecosystem interop — pipe straight into `fs`/`zlib`/etc. with no Web↔Node adapter, and skip the conversion. It always uses the Node backend, so on Bun and Deno it runs through their `node:child_process` compatibility layer. Type declarations live in `src/node/index.d.ts`.
+The API is identical to the main entry, except the streams are Node streams (from `node:stream`) instead of Web streams: `stdin`/`stdout`/`stderr` are a Node `Writable`/`Readable`, and `.io`/`.through`/`asDuplex` return a Node `Duplex` (so a process drops straight into a `.pipe()` chain or `stream.pipeline()`). This is convenient for direct Node-ecosystem interop — pipe straight into `fs`/`zlib`/etc. with no Web↔Node adapter, and skip the conversion. It always spawns through the Node backend, so on Bun and Deno it runs `node:child_process` through their compatibility layer; like `DSH_FORCE_NODE`, this changes only the spawn mechanism — the runtime that executes your scripts and how it is re-launched stay native. Type declarations live in `src/node/index.d.ts`.

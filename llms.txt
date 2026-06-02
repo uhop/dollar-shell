@@ -65,11 +65,11 @@ await $sh({stdout: 'inherit'})`echo ${raw('"hello"')}`;
 
 ## Forcing the Node backend
 
-By default each runtime uses its native backend. Set the `DSH_FORCE_NODE` environment variable (e.g. `DSH_FORCE_NODE=1`) to force the Node backend on every runtime (Bun and Deno then run on their `node:child_process` compat). Because dollar-shell's `env` option defaults to `process.env`, spawned children inherit the variable, so it forces the whole process tree; to force only the current process (no leak to children), set `globalThis.DSH_FORCE_NODE = true` before a dynamic `import()` instead (process-local). Useful to sidestep runtime-specific quirks. The backend is selected once, at import time. Treated as off: unset, `''`, `0`, `false`.
+By default each runtime uses its native backend. Set the `DSH_FORCE_NODE` environment variable (e.g. `DSH_FORCE_NODE=1`) to make every runtime spawn through the Node backend (`node:child_process`; Bun and Deno run it on their Node compat). This swaps **only the spawn mechanism** — the runtime that runs your code and how dollar-shell re-launches it stay native, so a forced child of Bun/Deno is still `bun run …` / `deno run …`, never a bare `node`. Because dollar-shell's `env` option defaults to `process.env`, spawned children inherit the variable, so it forces the whole process tree; to force only the current process (no leak to children), set `globalThis.DSH_FORCE_NODE = true` before a dynamic `import()` instead (process-local). Useful to sidestep runtime-specific quirks. The backend is selected once, at import time. Treated as off: unset, `''`, `0`, `false`.
 
 ## Node streams (`dollar-shell/node`)
 
-`import {$, $$, $sh, shell, spawn} from 'dollar-shell/node'` gives the identical API, but `stdin`/`stdout`/`stderr` are Node `Readable`/`Writable` (and `.io`/`.through`/`asDuplex` a Node `Duplex`) instead of Web streams — for direct Node-ecosystem piping with no adapter. Always uses the Node backend (runs on Bun/Deno via their `node:child_process` compat).
+`import {$, $$, $sh, shell, spawn} from 'dollar-shell/node'` gives the identical API, but `stdin`/`stdout`/`stderr` are Node `Readable`/`Writable` (and `.io`/`.through`/`asDuplex` a Node `Duplex`) instead of Web streams — for direct Node-ecosystem piping with no adapter. Always spawns through the Node backend (`node:child_process`, run on Bun/Deno via their Node compat); only the spawn mechanism changes — the runtime launch stays native.
 
 ## Docs
 

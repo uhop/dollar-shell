@@ -87,8 +87,8 @@ await $verbose`ls -l .`;
 
 ## Architecture
 
-- `src/index.js` is the main entry point. At import time it selects the runtime backend, then calls `buildApi()` (`src/build.js`), which picks the platform shell module and wires up the tag functions. Setting `globalThis.DSH_FORCE_NODE` or the `DSH_FORCE_NODE` env var forces the Node backend on every runtime (Bun/Deno via their `node:child_process` compat).
-- `dollar-shell/node` (`src/node/index.js`) is a second entry: the identical API built by the same `buildApi`, but on the Node backend's raw-streams variant, so `stdin`/`stdout`/`stderr` are Node streams (and `asDuplex`/`.io`/`.through` a Node `Duplex`) instead of web streams.
+- `src/index.js` is the main entry point. At import time it selects the runtime-native backend, then calls `buildApi()` (`src/build.js`), which picks the platform shell module and wires up the tag functions. Setting `globalThis.DSH_FORCE_NODE` or the `DSH_FORCE_NODE` env var swaps **only the spawn implementation** to the Node backend (`node:child_process`, run through Bun/Deno's Node compat); the runtime target and its launch parameters (`currentExecPath` / `runFileArgs` / `cwd`) stay native, so a forced child of Bun/Deno is still `bun run …` / `deno run …`, never a bare `node`.
+- `dollar-shell/node` (`src/node/index.js`) is a second entry: the identical API built by the same `buildApi`, but spawning through the Node backend's raw-streams variant (runtime launch stays native), so `stdin`/`stdout`/`stderr` are Node streams (and `asDuplex`/`.io`/`.through` a Node `Duplex`) instead of web streams.
 - All tag functions (`$`, `$$`, `$sh`, `shell`) are built by factory functions in `bq-spawn.js` and `bq-shell.js`.
 - **Tag function + options pattern**: calling a tag function with an options object returns a new tag function with updated defaults while preserving `.from`, `.to`, `.io`, `.through` properties.
 - **raw()**: wraps a value to bypass escaping (shell) or argument splitting (spawn).

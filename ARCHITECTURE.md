@@ -57,14 +57,15 @@ Calling a tag function with an options object returns a new tag function with up
 
 ### Runtime detection and the shared builder
 
-`src/index.js` runs once at import time. It selects a backend, then hands it to `buildApi()` (`src/build.js`), which does the platform shell selection and wires up every tag function (`$`, `$$`, `$sh`, `shell`, with `.from` / `.to` / `.through` / `.io`). Backend selection:
+`src/index.js` runs once at import time. It picks the **runtime-native** backend by detection, then hands it to `buildApi()` (`src/build.js`), which does the platform shell selection and wires up every tag function (`$`, `$$`, `$sh`, `shell`, with `.from` / `.to` / `.through` / `.io`). Runtime selection:
 
-1. force-Node flag set (`globalThis.DSH_FORCE_NODE` or the `DSH_FORCE_NODE` env var) → `await import('./spawn/node.js')` — forces the Node backend on every runtime, so Bun/Deno run on their `node:child_process` compat.
-2. `typeof Deno !== 'undefined'` → `await import('./spawn/deno.js')`.
-3. `typeof Bun !== 'undefined'` → `await import('./spawn/bun.js')`.
-4. Otherwise → `await import('./spawn/node.js')`.
+1. `typeof Deno !== 'undefined'` → `await import('./spawn/deno.js')`.
+2. `typeof Bun !== 'undefined'` → `await import('./spawn/bun.js')`.
+3. Otherwise → `await import('./spawn/node.js')`.
 
-Each runtime module exposes the same `Subprocess` shape, typed in `src/index.d.ts`. Runtime quirks are absorbed inside `src/spawn/<runtime>.js` so consumers see a uniform API. Because the tag-function wiring lives in `buildApi`, the `dollar-shell/node` entry (`src/node/index.js`) reuses it verbatim — it just passes the Node backend's raw-streams variant.
+The `DSH_FORCE_NODE` flag (`globalThis.DSH_FORCE_NODE` or the env var) then overrides **only the spawn implementation** with `./spawn/node.js`; the runtime-launch parameters (`currentExecPath`, `runFileArgs`, `cwd`) stay native, so a forced child of Bun/Deno is still launched as `bun run …` / `deno run …`, never a bare `node`. (Bun/Deno run `node:child_process` through their Node compatibility layer.)
+
+Each runtime module exposes the same `Subprocess` shape, typed in `src/index.d.ts`. Runtime quirks are absorbed inside `src/spawn/<runtime>.js` so consumers see a uniform API. Because the tag-function wiring lives in `buildApi`, the `dollar-shell/node` entry (`src/node/index.js`) reuses it verbatim — it passes the Node backend's raw-streams variant for spawning while keeping the same runtime-native launch parameters.
 
 ### Platform detection
 
@@ -72,7 +73,7 @@ Each runtime module exposes the same `Subprocess` shape, typed in `src/index.d.t
 
 ### Streams: web by default, Node on demand
 
-The main entry (`dollar-shell`) exposes `Subprocess.stdin` as a `WritableStream`, `stdout` / `stderr` as `ReadableStream`, and `asDuplex` as a `{readable, writable}` pair. The `dollar-shell/node` entry exposes the identical API with **Node** streams instead — `stdin` a `Writable`, `stdout` / `stderr` `Readable`, and `asDuplex` / `.io` / `.through` a Node `Duplex` (so a process drops straight into a `.pipe()` chain or `stream.pipeline()`). It always uses the Node backend's raw-streams variant, which skips `Readable/Writable.toWeb`. Cross-runtime parity for the default-reader web API is verified; the only documented divergence is BYOB readers (Deno-only). See `wiki/Cross-runtime-notes.md`.
+The main entry (`dollar-shell`) exposes `Subprocess.stdin` as a `WritableStream`, `stdout` / `stderr` as `ReadableStream`, and `asDuplex` as a `{readable, writable}` pair. The `dollar-shell/node` entry exposes the identical API with **Node** streams instead — `stdin` a `Writable`, `stdout` / `stderr` `Readable`, and `asDuplex` / `.io` / `.through` a Node `Duplex` (so a process drops straight into a `.pipe()` chain or `stream.pipeline()`). It always spawns through the Node backend's raw-streams variant (which skips `Readable/Writable.toWeb`), while the runtime launch parameters stay native. Cross-runtime parity for the default-reader web API is verified; the only documented divergence is BYOB readers (Deno-only). See `wiki/Cross-runtime-notes.md`.
 
 ### `raw()`
 
@@ -82,16 +83,16 @@ The main entry (`dollar-shell`) exposes `Subprocess.stdin` as a `WritableStream`
 
 ```
 src/index.js ────── src/utils.js (getEnv — the DSH_FORCE_NODE flag)
-                 ├─ src/spawn/{node,deno,bun}.js   (one chosen at import)
+                 ├─ src/spawn/{node,deno,bun}.js   (runtime-native at import; node.js also for spawn when forced)
                  └─ src/build.js ─── src/utils.js (isWindows, raw, winCmdEscape)
                                   ├─ src/bq-spawn.js
                                   ├─ src/bq-shell.js
                                   └─ src/shell/{unix,windows}.js   (one chosen at build)
 
-src/node/index.js ─ src/build.js + src/spawn/node.js (raw-streams variant)
+src/node/index.js ─ src/build.js + src/spawn/node.js (raw-streams variant for spawn) + runtime-native module (launch params)
 ```
 
-`src/index.js` dynamic-imports the runtime backend; `src/build.js` dynamic-imports the platform shell module. `src/node/index.js` reuses `buildApi` with the Node backend statically imported.
+`src/index.js` dynamic-imports the runtime-native backend (and `./spawn/node.js` as well when `DSH_FORCE_NODE` is set, for the spawn implementation only); `src/build.js` dynamic-imports the platform shell module. `src/node/index.js` statically imports the Node backend for spawning, dynamic-imports the runtime-native module for the launch parameters (`currentExecPath` / `runFileArgs` / `cwd`), then reuses `buildApi`.
 
 ## Cross-runtime testing
 

@@ -223,9 +223,11 @@ The rest is identical to `$`: `$sh`, `$sh.from`, `$sh.to` and `$sh.io`/`$sh.thro
 
 Each runtime uses its own backend by default (`node:child_process` on Node, `Bun.spawn` on Bun,
 `Deno.Command` on Deno). Set the **`DSH_FORCE_NODE` environment variable** (e.g. `DSH_FORCE_NODE=1`) to
-force every runtime onto the Node backend &mdash; Bun and Deno then run on their `node:child_process`
-compatibility layer. This is handy for sidestepping runtime-specific quirks (e.g. Bun intermittently
-dropping the last chunk of a child's piped output).
+make every runtime spawn through the Node backend &mdash; Bun and Deno then run `node:child_process` on
+their compatibility layer. This swaps **only the spawn mechanism**: the runtime that runs your code and how
+it's re-launched stay native, so a forced child of Bun/Deno is still `bun run …` / `deno run …`, never a
+bare `node`. Handy for sidestepping runtime-specific quirks (e.g. Bun intermittently dropping the last
+chunk of a child's piped output).
 
 Because dollar-shell spawns children with `env` defaulting to `process.env`, the variable is inherited by
 those children &mdash; so it forces the Node backend across the whole process tree. To force **only the
@@ -248,8 +250,8 @@ sp.stdout.pipe(process.stdout); // sp.stdout is a Node Readable
 
 The API is identical to the main entry — same `$`, `$$`, `$sh`, `shell`, helpers, and
 `.from`/`.to`/`.through`/`.io` — only the stream types differ (`stdin` is a Node `Writable`, `stdout`/`stderr`
-are Node `Readable`s, and `asDuplex` / `.io` / `.through` return a Node `Duplex`). It always uses the Node backend, so it also runs on Bun and Deno through their
-`node:child_process` compatibility layer.
+are Node `Readable`s, and `asDuplex` / `.io` / `.through` return a Node `Duplex`). It always spawns through the Node backend, so it also runs on Bun and Deno through their
+`node:child_process` compatibility layer (only the spawn mechanism changes &mdash; the runtime launch stays native).
 
 ## For AI Agents
 
@@ -269,6 +271,7 @@ BSD-3-Clause
 
 ## Release History
 
+- 1.2.1 _Bugfix: `DSH_FORCE_NODE` and `dollar-shell/node` now switch only the spawn mechanism — spawned children stay native (`bun run …` / `deno run …`)._
 - 1.2.0 _Added `dollar-shell/node` with Node streams and a `DSH_FORCE_NODE` flag to force the Node backend on any runtime._
 - 1.1.14 _Fixed Bun stdin abort path, added js-check, Bun + Deno wired into CI._
 - 1.1.13 _Updated dev dependencies._

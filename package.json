@@ -1,7 +1,7 @@
 {
   "name": "dollar-shell",
   "description": "Run OS and shell commands using template tag functions. Same API in Node, Deno, and Bun. Web streams, TypeScript typings, zero dependencies.",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "type": "module",
   "main": "./src/index.js",
   "types": "./src/index.d.ts",
@@ -77,7 +77,7 @@
     "@types/deno": "^2.7.0",
     "@types/node": "^25.9.1",
     "prettier": "^3.8.3",
-    "tape-six": "^1.10.0",
+    "tape-six": "^1.10.1",
     "typescript": "^6.0.3"
   },
   "tape6": {
