@@ -77,4 +77,5 @@ const bqSpawn = (spawn, options = {}) => {
   return bq;
 };
 
+export {bqSpawn};
 export default bqSpawn;

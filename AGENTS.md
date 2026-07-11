@@ -83,6 +83,7 @@ await $verbose`ls -l .`;
 - **No transpilation** — code runs directly in all target runtimes.
 - **Prettier** for formatting — run `npm run lint:fix` before committing.
 - Imports at the top of files, using `import` syntax.
+- **No comments that narrate the code.** Don't write a comment that restates _what_ the code does. Allowed, each as the shortest possible marker: JSDoc when requested or required; a reference for a non-trivial algorithm; a non-trivial _decision_ or constraint — _why_ it's this way, including footgun/ordering caveats that have a real reason. The bar is _why_, never _what_. Strip narrating comments opportunistically in files you're already editing.
 
 ## Architecture
 

@@ -36,4 +36,5 @@ const bqShell = (shellEscape, shell, options = {}) => {
   return bq;
 };
 
+export {bqShell};
 export default bqShell;

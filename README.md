@@ -104,7 +104,7 @@ dollar-shell/
 
 ## Documentation
 
-The documentation can be found in the [wiki](https://github.com/uhop/dollar-shell/wiki).
+Full documentation is in the **[wiki](https://github.com/uhop/dollar-shell/wiki)** &mdash; browse the [index](https://github.com/uhop/dollar-shell/wiki/Home), or [search it](https://uhop.github.io/wiki-search/app/?wiki=uhop/dollar-shell) by name.
 See how it can be used in [tests/](https://github.com/uhop/dollar-shell/tree/main/tests).
 
 For AI assistants: see [llms.txt](https://github.com/uhop/dollar-shell/blob/main/llms.txt) and [llms-full.txt](https://github.com/uhop/dollar-shell/blob/main/llms-full.txt) for LLM-optimized documentation.

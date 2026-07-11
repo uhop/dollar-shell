@@ -40,8 +40,6 @@
     "url": "https://github.com/uhop/dollar-shell/issues"
   },
   "homepage": "https://github.com/uhop/dollar-shell#readme",
-  "llms": "https://raw.githubusercontent.com/uhop/dollar-shell/main/llms.txt",
-  "llmsFull": "https://raw.githubusercontent.com/uhop/dollar-shell/main/llms-full.txt",
   "keywords": [
     "shell",
     "spawn",
