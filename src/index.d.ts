@@ -27,6 +27,12 @@ export interface SpawnOptions {
    * State of the standard error stream.
    */
   stderr?: SpawnStreamState;
+  /**
+   * When this signal is aborted, the subprocess is killed (`kill()`) and its
+   * `killed` flag is set. An already-aborted signal kills the process right
+   * after it is spawned.
+   */
+  signal?: AbortSignal;
 }
 
 /**
@@ -260,6 +266,62 @@ export interface DollarImpl<R = any> extends Dollar<Promise<DollarResult>> {
  * Or it can take an options object and return self with updated defaults.
  */
 export declare const $: DollarImpl;
+
+/**
+ * Options for {@link capture}.
+ */
+export interface CaptureOptions extends SpawnOptions {
+  /**
+   * Text written to the standard input of the process, which is then closed.
+   * When set, `stdin` is forced to `'pipe'`.
+   */
+  input?: string;
+}
+
+/**
+ * The result of {@link capture}: {@link DollarResult} plus the collected outputs.
+ */
+export interface CaptureResult extends DollarResult {
+  /**
+   * The collected standard output as a string.
+   */
+  stdout: string;
+  /**
+   * The collected standard error as a string.
+   */
+  stderr: string;
+}
+
+/**
+ * The capture (tag) function: runs the process and collects its outputs in memory.
+ * It resolves to a {@link CaptureResult} with `stdout` and `stderr` as strings
+ * (both streams are forced to `'pipe'`). Like the other tag functions it can take
+ * an options object and return self with updated defaults.
+ *
+ * The `env` option is passed to `spawn()` unchanged (no merging with the current
+ * environment) — spread the parent environment yourself to extend it.
+ */
+export declare const capture: Dollar<Promise<CaptureResult>, CaptureOptions>;
+
+/**
+ * Options for {@link withTempDir}.
+ */
+export interface TempDirOptions {
+  /**
+   * The prefix of the temporary directory's name. Defaults to `'dsh-'`.
+   */
+  prefix?: string;
+}
+
+/**
+ * Creates a temporary directory, runs `fn` with its absolute path, and removes
+ * the directory recursively afterward — even when `fn` throws. Resolves to the
+ * result of `fn`.
+ */
+export declare function withTempDir<T>(
+  fn: (dir: string) => T | Promise<T>,
+  options?: TempDirOptions
+): Promise<T>;
 
 /**
  * Options for the shell functions.

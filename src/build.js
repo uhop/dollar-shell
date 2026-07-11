@@ -8,7 +8,49 @@ import bqShell from './bq-shell.js';
 
 import {isWindows} from './utils.js';
 
-export const buildApi = async ({spawn, cwd, currentExecPath, runFileArgs}) => {
+// Abort semantics live here, not in the backends: the native signal options differ
+// per runtime (Node rejects `exited` with AbortError, Deno kills, Bun has none), while
+// wrapping `kill()` gives one uniform behavior everywhere `spawn` is reachable.
+const withSignal = spawn => (command, options) => {
+  const sp = spawn(command, options);
+  const signal = options?.signal;
+  if (signal) {
+    if (signal.aborted) {
+      if (!sp.finished) sp.kill();
+    } else {
+      const onAbort = () => {
+        if (!sp.finished) sp.kill();
+      };
+      signal.addEventListener('abort', onAbort, {once: true});
+      const off = () => signal.removeEventListener('abort', onAbort);
+      sp.exited.then(off, off);
+    }
+  }
+  return sp;
+};
+
+// Both entries flow through buildApi, so these accept Web and Node streams alike.
+const readAll = async stream => {
+  if (!stream) return '';
+  const decoder = new TextDecoder();
+  let result = '';
+  for await (const chunk of stream) result += decoder.decode(chunk, {stream: true});
+  return result + decoder.decode();
+};
+
+const writeAll = (stream, text) => {
+  if (typeof stream.getWriter === 'function') {
+    const writer = stream.getWriter();
+    return writer.write(new TextEncoder().encode(text)).then(() => writer.close());
+  }
+  return new Promise((resolve, reject) => {
+    stream.once('error', reject);
+    stream.end(text, () => resolve(undefined));
+  });
+};
+
+export const buildApi = async ({spawn: rawSpawn, cwd, currentExecPath, runFileArgs}) => {
+  const spawn = withSignal(rawSpawn);
   let modShell;
   if (isWindows) {
     modShell = await import('./shell/windows.js');
@@ -45,6 +87,23 @@ export const buildApi = async ({spawn, cwd, currentExecPath, runFileArgs}) => {
   $impl.from = fromProcess;
   $impl.to = toProcess;
   $impl.through = $impl.io = throughProcess;
+
+  const capture = bqSpawn(async (command, options) => {
+    const {input, ...spawnOptions} = options ?? {};
+    const sp = spawn(command, {
+      ...spawnOptions,
+      stdin: input != null ? 'pipe' : spawnOptions.stdin,
+      stdout: 'pipe',
+      stderr: 'pipe'
+    });
+    const [, stdout, stderr] = await Promise.all([
+      sp.exited,
+      readAll(sp.stdout),
+      readAll(sp.stderr),
+      input != null ? writeAll(sp.stdin, input) : undefined
+    ]);
+    return {code: sp.exitCode, signal: sp.signalCode, killed: sp.killed, stdout, stderr};
+  });
 
   // shell functions
 
@@ -106,6 +165,7 @@ export const buildApi = async ({spawn, cwd, currentExecPath, runFileArgs}) => {
     buildShellCommand,
     $$,
     $,
+    capture,
     shell,
     sh: shell,
     $sh

@@ -12,6 +12,7 @@ import {buildApi} from '../build.js';
 import * as backend from '../spawn/node.js';
 
 export {isWindows, raw, winCmdEscape} from '../utils.js';
+export {withTempDir} from '../temp-dir.js';
 
 let modRuntime;
 if (typeof Deno !== 'undefined') {
@@ -32,6 +33,7 @@ export const {
   buildShellCommand,
   $$,
   $,
+  capture,
   shell,
   sh,
   $sh

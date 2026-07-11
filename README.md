@@ -109,7 +109,7 @@ See how it can be used in [tests/](https://github.com/uhop/dollar-shell/tree/mai
 
 For AI assistants: see [llms.txt](https://github.com/uhop/dollar-shell/blob/main/llms.txt) and [llms-full.txt](https://github.com/uhop/dollar-shell/blob/main/llms-full.txt) for LLM-optimized documentation.
 
-Below is the documentation for the main components: `spawn()`, `$$`, `$` and `$sh`.
+Below is the documentation for the main components: `spawn()`, `$$`, `$`, `$sh`, `capture` and `withTempDir()`.
 
 ### `spawn()`
 
@@ -126,6 +126,10 @@ Arguments:
   - `stdin` &mdash; the optional source stream. Defaults to `null`.
   - `stdout` &mdash; the optional destination stream. Defaults to `null`.
   - `stderr` &mdash; the optional destination stream. Defaults to `null`.
+  - `signal` &mdash; an optional `AbortSignal`. When aborted, the subprocess is killed (`kill()`)
+    and its `killed` flag is set. An already-aborted signal kills the process right after it is
+    spawned. Honored by every function that spawns: `spawn()`, `$$`, `$`, `$sh`, `shell`, `capture`
+    and the `.from`/`.to`/`.io` tags.
 
 `stdin`, `stdout` and `stderr` can be a string (one of `'inherit'`, `'ignore'`, `'pipe'` or `'piped'`)
 or `null`. The latter is equivalent to `'ignore'`. `'piped'` is an alias of `'pipe'`:
@@ -219,6 +223,60 @@ the spawn options with the following properties:
 
 The rest is identical to `$`: `$sh`, `$sh.from`, `$sh.to` and `$sh.io`/`$sh.through`.
 
+### `capture`
+
+One call to run a process and collect its outputs as strings &mdash; the scripting and testing
+primitive (think shell backticks):
+
+```js
+import {capture} from 'dollar-shell';
+
+const {code, stdout, stderr} = await capture`git rev-parse HEAD`;
+```
+
+It mirrors `$` (a tag function with the same options chaining) with these differences:
+
+- `stdout` and `stderr` are forced to `'pipe'` and collected in memory. The resolved object
+  extends `$`'s result (`code`, `signal`, `killed`) with `stdout` and `stderr` strings.
+- `input` &mdash; an optional string written to the standard input of the process, which is then
+  closed. When set, `stdin` is forced to `'pipe'`.
+- The `env` option is passed to `spawn()` unchanged &mdash; no merging with the parent environment.
+  Spread it yourself to extend: `env: {...process.env, FOO: '1'}`.
+
+```js
+const result = await capture({input: 'some text'})`cat`;
+result.stdout === 'some text';
+
+// with an AbortSignal
+const controller = new AbortController();
+const pending = capture({signal: controller.signal})`sleep 10`;
+controller.abort();
+(await pending).killed === true;
+```
+
+Buffering is eager &mdash; for large outputs use the streaming tags (`$.from`, `$.io`).
+
+### `withTempDir()`
+
+Runs a function with a freshly created temporary directory and removes the directory afterward
+(recursively), even when the function throws &mdash; the `mktemp -d` analog:
+
+```js
+import {withTempDir, $} from 'dollar-shell';
+
+const result = await withTempDir(async dir => {
+  await $({cwd: dir})`tar xf ${archive}`;
+  // ... work inside dir ...
+  return summary;
+}); // dir is gone here
+```
+
+The signature: `withTempDir(fn, options)`
+
+- `fn` &mdash; a (possibly async) function that receives the absolute path of the directory.
+  Its result becomes the result of `withTempDir()`.
+- `options.prefix` &mdash; the optional prefix of the directory name. Defaults to `'dsh-'`.
+
 ## Forcing the Node backend
 
 Each runtime uses its own backend by default (`node:child_process` on Node, `Bun.spawn` on Bun,
@@ -248,8 +306,8 @@ const sp = spawn(['cat', 'file.txt'], {stdout: 'pipe'});
 sp.stdout.pipe(process.stdout); // sp.stdout is a Node Readable
 ```
 
-The API is identical to the main entry — same `$`, `$$`, `$sh`, `shell`, helpers, and
-`.from`/`.to`/`.through`/`.io` — only the stream types differ (`stdin` is a Node `Writable`, `stdout`/`stderr`
+The API is identical to the main entry — same `$`, `$$`, `$sh`, `shell`, `capture`, `withTempDir()`,
+helpers, and `.from`/`.to`/`.through`/`.io` — only the stream types differ (`stdin` is a Node `Writable`, `stdout`/`stderr`
 are Node `Readable`s, and `asDuplex` / `.io` / `.through` return a Node `Duplex`). It always spawns through the Node backend, so it also runs on Bun and Deno through their
 `node:child_process` compatibility layer (only the spawn mechanism changes &mdash; the runtime launch stays native).
 

@@ -39,6 +39,7 @@ dollar-shell/
 │   ├── node/         # `dollar-shell/node` entry — same API, Node streams instead of web streams
 │   ├── bq-spawn.js   # Template tag factory for spawn-based functions ($, $$)
 │   ├── bq-shell.js   # Template tag factory for shell-based functions ($sh, shell)
+│   ├── temp-dir.js   # withTempDir(): scoped temporary directory (node:fs/promises, all runtimes)
 │   ├── utils.js      # Shared utilities (raw, isWindows, winCmdEscape, getEnv, etc.)
 │   ├── spawn/        # Runtime-specific Subprocess implementations
 │   │   ├── node.js   # Node.js: child_process; web streams by default, raw Node streams for dollar-shell/node

@@ -33,10 +33,13 @@ interface SpawnOptions {
   stdin?: SpawnStreamState;   // default: null (ignored)
   stdout?: SpawnStreamState;  // default: null (ignored)
   stderr?: SpawnStreamState;  // default: null (ignored)
+  signal?: AbortSignal;       // abort => kill() the subprocess, killed flag set
 }
 ```
 
 Stream states: `'pipe'`/`'piped'` makes the stream available, `'inherit'` inherits from parent, `'ignore'`/`null` ignores it.
+
+`signal`: when the `AbortSignal` aborts, the subprocess is killed (`kill()`) and its `killed` flag is set. An already-aborted signal kills the process right after it is spawned. Honored by every spawning function: `spawn()`, `$$`, `$`, `$sh`, `shell`, `capture` and the `.from`/`.to`/`.io` tags.
 
 ### Subprocess
 
@@ -150,6 +153,71 @@ When `$` is called with an options object, it returns a new `$` with updated def
 const $custom = $({stdout: 'inherit', stderr: 'inherit'});
 typeof $custom.from === 'function';  // true
 typeof $custom.io === 'function';    // true
+```
+
+## capture
+
+Runs a process and collects its outputs in memory — the one-call scripting/testing primitive.
+A tag function with the same options chaining as `$`.
+
+```ts
+interface CaptureOptions extends SpawnOptions {
+  input?: string;  // written to stdin, which is then closed; forces stdin: 'pipe'
+}
+
+interface CaptureResult extends DollarResult {
+  stdout: string;  // collected standard output
+  stderr: string;  // collected standard error
+}
+
+declare const capture: Dollar<Promise<CaptureResult>, CaptureOptions>;
+```
+
+`stdout` and `stderr` are forced to `'pipe'` and collected as strings (UTF-8 decoded).
+The `env` option is passed to `spawn()` unchanged — no merging with the parent environment
+(spread it yourself: `env: {...process.env, FOO: '1'}`). Buffering is eager — for large
+outputs use the streaming tags (`$.from`, `$.io`).
+
+Examples:
+```js
+import {capture} from 'dollar-shell';
+
+const {code, stdout, stderr} = await capture`git rev-parse HEAD`;
+
+// String input to stdin
+(await capture({input: 'some text'})`cat`).stdout === 'some text';
+
+// Abort kills the process; the result reports killed: true
+const controller = new AbortController();
+const pending = capture({signal: controller.signal})`sleep 10`;
+controller.abort();
+(await pending).killed === true;
+```
+
+## withTempDir()
+
+Creates a temporary directory, runs `fn` with its absolute path, and removes the directory
+recursively afterward — even when `fn` throws. The `mktemp -d` analog.
+
+```ts
+interface TempDirOptions {
+  prefix?: string;  // directory name prefix, defaults to 'dsh-'
+}
+
+declare function withTempDir<T>(
+  fn: (dir: string) => T | Promise<T>,
+  options?: TempDirOptions
+): Promise<T>;
+```
+
+Example:
+```js
+import {withTempDir, $} from 'dollar-shell';
+
+const result = await withTempDir(async dir => {
+  await $({cwd: dir})`tar xf ${archive}`;
+  return summary;   // becomes withTempDir()'s result
+}); // dir is removed here, even on throw
 ```
 
 ## shell / sh

@@ -5,11 +5,23 @@ import type {
   SpawnOptions,
   ShellEscapeOptions,
   DollarResult,
+  CaptureOptions,
+  CaptureResult,
+  TempDirOptions,
   ShellOptions
 } from '../index.js';
 
 // The stream-free half of the public API is identical to the main entry — reuse it verbatim.
-export type {SpawnStreamState, SpawnOptions, ShellEscapeOptions, DollarResult, ShellOptions};
+export type {
+  SpawnStreamState,
+  SpawnOptions,
+  ShellEscapeOptions,
+  DollarResult,
+  CaptureOptions,
+  CaptureResult,
+  TempDirOptions,
+  ShellOptions
+};
 export {
   cwd,
   currentExecPath,
@@ -19,7 +31,9 @@ export {
   winCmdEscape,
   shellEscape,
   currentShellPath,
-  buildShellCommand
+  buildShellCommand,
+  capture,
+  withTempDir
 } from '../index.js';
 
 /**

@@ -5,6 +5,9 @@ import type {
   SpawnOptions,
   Subprocess,
   DollarResult,
+  CaptureOptions,
+  CaptureResult,
+  TempDirOptions,
   ShellOptions,
   ShellEscapeOptions
 } from '../src/index.js';
@@ -15,6 +18,8 @@ import $, {
   shell,
   sh,
   spawn,
+  capture,
+  withTempDir,
   cwd,
   currentExecPath,
   runFileArgs,
@@ -229,4 +234,41 @@ test('types: $sh double option chaining', {skip: isWindows}, async t => {
   const $custom2 = $custom({shellPath: '/bin/sh'});
   const result: DollarResult = await $custom2`echo chain`;
   t.ok(result);
+});
+
+test('types: SpawnOptions accepts signal', t => {
+  const controller = new AbortController();
+  const opts: SpawnOptions = {signal: controller.signal};
+  t.ok(opts);
+});
+
+test('types: capture returns Promise<CaptureResult>', async t => {
+  const result: CaptureResult = isWindows
+    ? await capture`node -e ${'console.log("hello")'}`
+    : await capture`echo hello`;
+  const _code: number | null = result.code;
+  const _signal: string | null = result.signal;
+  const _killed: boolean = result.killed;
+  const _stdout: string = result.stdout;
+  const _stderr: string = result.stderr;
+  const asDollar: DollarResult = result;
+  t.ok(asDollar);
+});
+
+test('types: capture accepts CaptureOptions', async t => {
+  const opts: CaptureOptions = {input: 'text', cwd: '.'};
+  const custom = capture(opts);
+  const result: CaptureResult = isWindows ? await custom`findstr /r .*` : await custom`cat`;
+  t.equal(result.stdout.trim(), 'text');
+});
+
+test('types: withTempDir propagates the result type', async t => {
+  const opts: TempDirOptions = {prefix: 'dsh-types-'};
+  const n: number = await withTempDir(dir => {
+    const _dir: string = dir;
+    return 7;
+  }, opts);
+  const s: string = await withTempDir(async () => 'done');
+  t.equal(n, 7);
+  t.equal(s, 'done');
 });

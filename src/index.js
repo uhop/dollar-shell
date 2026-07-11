@@ -7,6 +7,7 @@ import {getEnv} from './utils.js';
 import {buildApi} from './build.js';
 
 export {isWindows, raw, winCmdEscape} from './utils.js';
+export {withTempDir} from './temp-dir.js';
 
 // Force the Node backend on every runtime with the `DSH_FORCE_NODE` environment
 // variable (e.g. DSH_FORCE_NODE=1) — Bun/Deno then run on their Node compat (e.g. to
@@ -61,6 +62,7 @@ export const {
   buildShellCommand,
   $$,
   $,
+  capture,
   shell,
   sh,
   $sh

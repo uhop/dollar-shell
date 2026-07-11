@@ -18,6 +18,7 @@ dollar-shell/
 │   │   └── index.d.ts    # Node-stream types (reuses the stream-free half of index.d.ts)
 │   ├── bq-spawn.js       # Template tag factory for spawn-based functions ($, $$)
 │   ├── bq-shell.js       # Template tag factory for shell-based functions ($sh, shell)
+│   ├── temp-dir.js       # withTempDir(): scoped temporary directory (node:fs/promises, all runtimes)
 │   ├── utils.js          # Shared utilities (raw, isWindows, winCmdEscape, getEnv, etc.)
 │   ├── spawn/            # Runtime-specific Subprocess implementations
 │   │   ├── node.js       # Node.js: child_process; Web streams by default, raw Node streams (+ Duplex) for dollar-shell/node
@@ -57,7 +58,7 @@ Calling a tag function with an options object returns a new tag function with up
 
 ### Runtime detection and the shared builder
 
-`src/index.js` runs once at import time. It picks the **runtime-native** backend by detection, then hands it to `buildApi()` (`src/build.js`), which does the platform shell selection and wires up every tag function (`$`, `$$`, `$sh`, `shell`, with `.from` / `.to` / `.through` / `.io`). Runtime selection:
+`src/index.js` runs once at import time. It picks the **runtime-native** backend by detection, then hands it to `buildApi()` (`src/build.js`), which does the platform shell selection and wires up every tag function (`$`, `$$`, `$sh`, `shell`, `capture`, with `.from` / `.to` / `.through` / `.io`). `buildApi` also wraps the backend's `spawn` with the `signal` (AbortSignal) handler — abort semantics live in that one wrapper, not in the backends, so every spawning function honors `signal` uniformly on all runtimes. Runtime selection:
 
 1. `typeof Deno !== 'undefined'` → `await import('./spawn/deno.js')`.
 2. `typeof Bun !== 'undefined'` → `await import('./spawn/bun.js')`.
