@@ -7,7 +7,6 @@ import type {
   DollarResult,
   CaptureOptions,
   CaptureResult,
-  TempDirOptions,
   ShellOptions
 } from '../index.js';
 
@@ -19,7 +18,6 @@ export type {
   DollarResult,
   CaptureOptions,
   CaptureResult,
-  TempDirOptions,
   ShellOptions
 };
 export {
@@ -32,8 +30,7 @@ export {
   shellEscape,
   currentShellPath,
   buildShellCommand,
-  capture,
-  withTempDir
+  capture
 } from '../index.js';
 
 /**

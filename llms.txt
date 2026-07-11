@@ -25,7 +25,6 @@ Run: `node my-script.js`
 - `shell` / `sh` — run a shell command, returns a `Subprocess` object.
 - `spawn()` — low-level process spawning with full configuration.
 - `capture` — run a command and collect outputs, returns `Promise<{code, signal, killed, stdout, stderr}>` with `stdout`/`stderr` as strings; the `input` option writes a string to stdin and closes it.
-- `withTempDir(fn, options?)` — run `fn(dir)` with a freshly created temporary directory, removed recursively afterward even when `fn` throws; resolves to `fn`'s result.
 
 Stream pipeline helpers (available on `$` and `$sh`):
 - `.from` — stdout as a ReadableStream (source).
@@ -68,7 +67,7 @@ await $sh({stdout: 'inherit'})`echo ${raw('"hello"')}`;
 ```
 
 ```js
-import {capture, withTempDir} from 'dollar-shell';
+import {capture} from 'dollar-shell';
 
 // Run and collect outputs as strings
 const {code, stdout, stderr} = await capture`git rev-parse HEAD`;
@@ -81,11 +80,6 @@ const controller = new AbortController();
 const pending = capture({signal: controller.signal})`sleep 10`;
 controller.abort();
 (await pending).killed === true;
-
-// Scoped temporary directory (mktemp -d analog)
-await withTempDir(async dir => {
-  await $({cwd: dir})`tar xf ${archive}`;
-}); // dir is removed here
 ```
 
 ## Forcing the Node backend
@@ -104,7 +98,6 @@ By default each runtime uses its native backend. Set the `DSH_FORCE_NODE` enviro
 - [shell / sh](https://github.com/uhop/dollar-shell/wiki/shell): Run shell commands returning full Subprocess objects
 - [spawn()](https://github.com/uhop/dollar-shell/wiki/spawn): Low-level process spawning with full configuration
 - [capture](https://github.com/uhop/dollar-shell/wiki/capture): Run a command and collect stdout/stderr as strings
-- [withTempDir()](https://github.com/uhop/dollar-shell/wiki/withTempDir): Scoped temporary directory — created for a function, removed afterward
 - [Utilities](https://github.com/uhop/dollar-shell/wiki/Utilities): Helper functions — raw(), winCmdEscape(), isWindows, cwd(), currentExecPath(), runFileArgs, shellEscape(), currentShellPath(), buildShellCommand()
 
 ## Links

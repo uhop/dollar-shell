@@ -14,21 +14,22 @@ Node, Deno, or Bun.
 
 Available components:
 
-- `$` &mdash; spawn a process using a template string.
+- [`$`](https://github.com/uhop/dollar-shell/wiki/$) &mdash; spawn a process using a template string.
   - `$.from` &mdash; spawn a process and use its `stdout` as a source stream.
   - `$.to` &mdash; spawn a process and use its `stdin` as a sink stream.
   - `$.io` AKA `$.through` &mdash; spawn a process and use it as
     a transformation step in our pipeline.
-- `$sh` &mdash; run a shell command using a template string.
+- [`$sh`](https://github.com/uhop/dollar-shell/wiki/$sh) &mdash; run a shell command using a template string.
   - `$sh.from` &mdash; run a shell command and use its `stdout` as a source stream.
   - `$sh.to` &mdash; run a shell command and use its `stdin` as a sink stream.
   - `$sh.io` AKA `$sh.through` &mdash; run a shell command and use it as
     a transformation step in our pipeline.
+- [`capture`](https://github.com/uhop/dollar-shell/wiki/capture) &mdash; run a command and collect its `stdout`/`stderr` as strings.
 - Advanced components:
-  - `spawn()` &mdash; spawn a process with advanced ways to configure and control it.
-  - `$$` &mdash; spawn a process using a template string based on `spawn()`.
-  - `shell()` &mdash; a helper to spawn a shell command using a template string based on `spawn()`.
-  - Various helpers for them.
+  - [`spawn()`](https://github.com/uhop/dollar-shell/wiki/spawn) &mdash; spawn a process with advanced ways to configure and control it.
+  - [`$$`](https://github.com/uhop/dollar-shell/wiki/$$) &mdash; spawn a process using a template string based on `spawn()`.
+  - [`shell()`](https://github.com/uhop/dollar-shell/wiki/shell) &mdash; a helper to spawn a shell command using a template string based on `spawn()`.
+  - Various [helpers](https://github.com/uhop/dollar-shell/wiki/Utilities) for them.
 
 ## Introduction
 
@@ -79,27 +80,22 @@ chain([
 ]);
 ```
 
+Capture the output of a command:
+
+```js
+import {capture} from 'dollar-shell';
+
+const {code, stdout, stderr} = await capture`git rev-parse HEAD`;
+
+// feed a string to stdin
+const result = await capture({input: 'some text'})`cat`;
+result.stdout === 'some text';
+```
+
 ## Installation
 
 ```bash
 npm i --save dollar-shell
-```
-
-## Project structure
-
-```
-dollar-shell/
-├── src/              # Source code
-│   ├── index.js      # Main entry point, wires everything together
-│   ├── index.d.ts    # TypeScript declarations for the full public API
-│   ├── bq-spawn.js   # Template tag factory for spawn-based functions ($, $$)
-│   ├── bq-shell.js   # Template tag factory for shell-based functions ($sh, shell)
-│   ├── utils.js      # Shared utilities (raw, isWindows, winCmdEscape, etc.)
-│   ├── spawn/        # Runtime-specific Subprocess implementations
-│   └── shell/        # Platform-specific shell escaping and command building
-├── tests/            # Automated tests (tape-six): .js, .cjs, .ts
-├── tests/manual/     # Manual verification scripts
-└── wiki/             # GitHub wiki documentation (git submodule)
 ```
 
 ## Documentation
@@ -109,195 +105,20 @@ See how it can be used in [tests/](https://github.com/uhop/dollar-shell/tree/mai
 
 For AI assistants: see [llms.txt](https://github.com/uhop/dollar-shell/blob/main/llms.txt) and [llms-full.txt](https://github.com/uhop/dollar-shell/blob/main/llms-full.txt) for LLM-optimized documentation.
 
-Below is the documentation for the main components: `spawn()`, `$$`, `$`, `$sh`, `capture` and `withTempDir()`.
-
-### `spawn()`
-
-Spawn a process with advanced ways to configure and control it.
-
-The signature: `spawn(command, options)`
-
-Arguments:
-
-- `command` &mdash; an array of strings. The first element is the command to run. The rest are its arguments.
-- `options` &mdash; an optional object with options to configure the process:
-  - `cwd` &mdash; the optional current working directory as a string. Defaults to `process.cwd()`.
-  - `env` &mdash; the optional environment variables as an object (key-value pairs). Defaults to `process.env`.
-  - `stdin` &mdash; the optional source stream. Defaults to `null`.
-  - `stdout` &mdash; the optional destination stream. Defaults to `null`.
-  - `stderr` &mdash; the optional destination stream. Defaults to `null`.
-  - `signal` &mdash; an optional `AbortSignal`. When aborted, the subprocess is killed (`kill()`)
-    and its `killed` flag is set. An already-aborted signal kills the process right after it is
-    spawned. Honored by every function that spawns: `spawn()`, `$$`, `$`, `$sh`, `shell`, `capture`
-    and the `.from`/`.to`/`.io` tags.
-
-`stdin`, `stdout` and `stderr` can be a string (one of `'inherit'`, `'ignore'`, `'pipe'` or `'piped'`)
-or `null`. The latter is equivalent to `'ignore'`. `'piped'` is an alias of `'pipe'`:
-
-- `'inherit'` &mdash; inherit streams from the parent process. For output steams (`stdout` and `stderr`),
-  it means that they will be piped to the same target, e.g., the console.
-- `'ignore'` &mdash; the stream is ignored.
-- `'pipe'` &mdash; the stream is available for reading or writing.
-
-Returns a sub-process object with the following properties:
-
-- `command` &mdash; the command that was run as an array of strings.
-- `options` &mdash; the options that were passed to `spawn()`.
-- `exited` &mdash; a promise that resolves to the exit code of the process. It is used to wait for the process to exit.
-- `finished` &mdash; a boolean. It is `true` when the process has finished and `false` otherwise.
-- `killed` &mdash; a boolean. It is `true` when the process has been killed and `false` otherwise.
-- `exitCode` &mdash; the exit code of the process as a number. It is `null` if the process hasn't exited yet.
-- `signalCode` &mdash; the signal code of the process as a string. It is `null` if the process hasn't exited yet.
-- `stdin` &mdash; the source stream of the process if `options.stdin` was `'pipe'`. It is `null` otherwise.
-- `stdout` &mdash; the destination stream of the process if `options.stdout` was `'pipe'`. It is `null` otherwise.
-- `stderr` &mdash; the destination stream of the process if `options.stderr` was `'pipe'`. It is `null` otherwise.
-- `kill()` &mdash; kills the process. `killed` will be `true` as soon as the process has been killed. It can be used to pipe the input and output. See `spawn()`'s `stdin` and `stdout` above for more details.
-
-**Important:** all streams are exposed as [web streams](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API).
-
-#### Examples
-
-```js
-import {spawn} from 'dollar-shell';
-
-const sp = spawn(['sleep', '5']);
-await new Promise(resolve => setTimeout(resolve, 1000));
-sp.kill();
-await sp.exited;
-
-sp.finished === true;
-sp.killed === true;
-```
-
-### `$$`
-
-The same as `spawn()`, but it returns a tag function that can be used as a template string.
-
-The signatures:
-
-```js
-const sp1 = $$`ls -l ${myFile}`; // runs a command the defaults
-
-const sp2 = $$(options)`ls -l .`; // runs a command with custom spawn options
-
-const $tag = $$(options); // returns a tag function
-const sp3 = $tag`ls -l .`; // runs a command with custom spawn options
-```
-
-This function is effectively a helper for `spawn()`. It parses the template string
-into an array of string arguments. Each inserted value is included
-as a separate argument if it was surrounded by whitespaces.
-
-The second signature is used to run a command with custom spawn options. See `spawn()` above for more details.
-
-The first signature returns a sub-process object. See `spawn()` for more details. The second signature
-returns a tag function that can be used as a template string.
-
-### `$`
-
-This function is similar to `$$` but it uses different default spawn options related to streams and
-different (simpler) return values:
-
-- `$` &mdash; all streams are ignored. It returns a promise that resolves to an object with the following properties:
-  - `code` &mdash; the exit code of the process. See `spawn()`'s `exitCode` above for more details.
-  - `signal` &mdash; the signal code of the process. See `spawn()`'s `signalCode` above for more details.
-  - `killed` &mdash; a boolean. It is `true` when the process has been killed and `false` otherwise. See `spawn()`'s `killed` above for more details.
-- `$.from` &mdash; sets `stdout` to `pipe` and returns `stdout` of the process. It can be used to process the output. See `spawn()`'s `stdout` above for more details.
-- `$.to` &mdash; sets `stdin` to `pipe` and returns `stdin` of the process. It can be used to pipe the input. See `spawn()`'s `stdin` above for more details.
-- `$.io` AKA `$.through` &mdash; sets `stdin` and `stdout` to `pipe` and returns `stdin` and `stdout` of the process as a `{readable, writable}` pair. It can be used to create a pipeline where an external process can be used as a transform step.
-
-### `$sh`
-
-This function mirrors `$` but runs the command with the shell. It takes an options object that extends
-the spawn options with the following properties:
-
-- `shellPath` &mdash; the path to the shell.
-  - On Unix-like systems it defaults to the value of
-    the `SHELL` environment variable if specified. Otherwise it is `'/bin/sh'` or `'/system/bin/sh'` on Android.
-  - On Windows it defaults to the value of the `ComSpec` environment variable if specified.
-    Otherwise it is `cmd.exe`.
-- `shellArgs` &mdash; an array of strings that are passed to the shell as arguments.
-  - On Unix-like systems it defaults to `['-c']`.
-  - On Windows it defaults to `['/d', '/s', '/c']` for `cmd.exe`
-    or `['-c']` for `pwsh.exe` or `powershell.exe`.
-
-The rest is identical to `$`: `$sh`, `$sh.from`, `$sh.to` and `$sh.io`/`$sh.through`.
-
-### `capture`
-
-One call to run a process and collect its outputs as strings &mdash; the scripting and testing
-primitive (think shell backticks):
-
-```js
-import {capture} from 'dollar-shell';
-
-const {code, stdout, stderr} = await capture`git rev-parse HEAD`;
-```
-
-It mirrors `$` (a tag function with the same options chaining) with these differences:
-
-- `stdout` and `stderr` are forced to `'pipe'` and collected in memory. The resolved object
-  extends `$`'s result (`code`, `signal`, `killed`) with `stdout` and `stderr` strings.
-- `input` &mdash; an optional string written to the standard input of the process, which is then
-  closed. When set, `stdin` is forced to `'pipe'`.
-- The `env` option is passed to `spawn()` unchanged &mdash; no merging with the parent environment.
-  Spread it yourself to extend: `env: {...process.env, FOO: '1'}`.
-
-```js
-const result = await capture({input: 'some text'})`cat`;
-result.stdout === 'some text';
-
-// with an AbortSignal
-const controller = new AbortController();
-const pending = capture({signal: controller.signal})`sleep 10`;
-controller.abort();
-(await pending).killed === true;
-```
-
-Buffering is eager &mdash; for large outputs use the streaming tags (`$.from`, `$.io`).
-
-### `withTempDir()`
-
-Runs a function with a freshly created temporary directory and removes the directory afterward
-(recursively), even when the function throws &mdash; the `mktemp -d` analog:
-
-```js
-import {withTempDir, $} from 'dollar-shell';
-
-const result = await withTempDir(async dir => {
-  await $({cwd: dir})`tar xf ${archive}`;
-  // ... work inside dir ...
-  return summary;
-}); // dir is gone here
-```
-
-The signature: `withTempDir(fn, options)`
-
-- `fn` &mdash; a (possibly async) function that receives the absolute path of the directory.
-  Its result becomes the result of `withTempDir()`.
-- `options.prefix` &mdash; the optional prefix of the directory name. Defaults to `'dsh-'`.
-
 ## Forcing the Node backend
 
 Each runtime uses its own backend by default (`node:child_process` on Node, `Bun.spawn` on Bun,
 `Deno.Command` on Deno). Set the **`DSH_FORCE_NODE` environment variable** (e.g. `DSH_FORCE_NODE=1`) to
-make every runtime spawn through the Node backend &mdash; Bun and Deno then run `node:child_process` on
-their compatibility layer. This swaps **only the spawn mechanism**: the runtime that runs your code and how
-it's re-launched stay native, so a forced child of Bun/Deno is still `bun run …` / `deno run …`, never a
-bare `node`. Handy for sidestepping runtime-specific quirks (e.g. Bun intermittently dropping the last
-chunk of a child's piped output).
-
-Because dollar-shell spawns children with `env` defaulting to `process.env`, the variable is inherited by
-those children &mdash; so it forces the Node backend across the whole process tree. To force **only the
-current process** (no leak to spawned children), set `globalThis.DSH_FORCE_NODE = true` before importing
-instead; it's process-local, but requires a dynamic `import()` (the backend is chosen once, at import time).
-See the [Cross-runtime notes](https://github.com/uhop/dollar-shell/wiki/Cross-runtime-notes) for details.
+make every runtime spawn through the Node backend &mdash; it swaps **only the spawn mechanism**, the
+runtime launch stays native. Handy for sidestepping runtime-specific quirks. Details and scoping (the
+whole process tree vs the current process only) are in the
+[Cross-runtime notes](https://github.com/uhop/dollar-shell/wiki/Cross-runtime-notes).
 
 ## Node streams (`dollar-shell/node`)
 
 The default entry exposes [web streams](https://developer.mozilla.org/en-US/docs/Web/API/Streams_API) on
-`stdin`/`stdout`/`stderr`. If you'd rather work with Node streams — to pipe straight into `fs`/`zlib`/etc.
-with no Web&harr;Node adapter, or to skip the conversion — import from `dollar-shell/node` instead:
+`stdin`/`stdout`/`stderr`. If you'd rather work with Node streams &mdash; to pipe straight into
+`fs`/`zlib`/etc. with no adapter &mdash; import the identical API from `dollar-shell/node` instead:
 
 ```js
 import {spawn} from 'dollar-shell/node';
@@ -306,10 +127,9 @@ const sp = spawn(['cat', 'file.txt'], {stdout: 'pipe'});
 sp.stdout.pipe(process.stdout); // sp.stdout is a Node Readable
 ```
 
-The API is identical to the main entry — same `$`, `$$`, `$sh`, `shell`, `capture`, `withTempDir()`,
-helpers, and `.from`/`.to`/`.through`/`.io` — only the stream types differ (`stdin` is a Node `Writable`, `stdout`/`stderr`
-are Node `Readable`s, and `asDuplex` / `.io` / `.through` return a Node `Duplex`). It always spawns through the Node backend, so it also runs on Bun and Deno through their
-`node:child_process` compatibility layer (only the spawn mechanism changes &mdash; the runtime launch stays native).
+Only the stream types differ (`stdin` is a Node `Writable`, `stdout`/`stderr` are Node `Readable`s,
+`asDuplex`/`.io`/`.through` return a Node `Duplex`). See
+[Node streams](https://github.com/uhop/dollar-shell/wiki/Node-streams) for details.
 
 ## For AI Agents
 
@@ -329,6 +149,7 @@ BSD-3-Clause
 
 ## Release History
 
+- 1.3.0 _Added `capture` (run a command, collect stdout/stderr as strings) and the `signal` option (an `AbortSignal` kills the subprocess)._
 - 1.2.1 _Bugfix: `DSH_FORCE_NODE` and `dollar-shell/node` now switch only the spawn mechanism — spawned children stay native (`bun run …` / `deno run …`)._
 - 1.2.0 _Added `dollar-shell/node` with Node streams and a `DSH_FORCE_NODE` flag to force the Node backend on any runtime._
 - 1.1.14 _Fixed Bun stdin abort path, added js-check, Bun + Deno wired into CI._

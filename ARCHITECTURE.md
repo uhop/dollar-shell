@@ -18,7 +18,6 @@ dollar-shell/
 │   │   └── index.d.ts    # Node-stream types (reuses the stream-free half of index.d.ts)
 │   ├── bq-spawn.js       # Template tag factory for spawn-based functions ($, $$)
 │   ├── bq-shell.js       # Template tag factory for shell-based functions ($sh, shell)
-│   ├── temp-dir.js       # withTempDir(): scoped temporary directory (node:fs/promises, all runtimes)
 │   ├── utils.js          # Shared utilities (raw, isWindows, winCmdEscape, getEnv, etc.)
 │   ├── spawn/            # Runtime-specific Subprocess implementations
 │   │   ├── node.js       # Node.js: child_process; Web streams by default, raw Node streams (+ Duplex) for dollar-shell/node

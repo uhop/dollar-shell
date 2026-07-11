@@ -7,7 +7,6 @@ import type {
   DollarResult,
   CaptureOptions,
   CaptureResult,
-  TempDirOptions,
   ShellOptions,
   ShellEscapeOptions
 } from '../src/index.js';
@@ -19,7 +18,6 @@ import $, {
   sh,
   spawn,
   capture,
-  withTempDir,
   cwd,
   currentExecPath,
   runFileArgs,
@@ -260,15 +258,4 @@ test('types: capture accepts CaptureOptions', async t => {
   const custom = capture(opts);
   const result: CaptureResult = isWindows ? await custom`findstr /r .*` : await custom`cat`;
   t.equal(result.stdout.trim(), 'text');
-});
-
-test('types: withTempDir propagates the result type', async t => {
-  const opts: TempDirOptions = {prefix: 'dsh-types-'};
-  const n: number = await withTempDir(dir => {
-    const _dir: string = dir;
-    return 7;
-  }, opts);
-  const s: string = await withTempDir(async () => 'done');
-  t.equal(n, 7);
-  t.equal(s, 'done');
 });

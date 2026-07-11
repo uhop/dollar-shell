@@ -194,32 +194,6 @@ controller.abort();
 (await pending).killed === true;
 ```
 
-## withTempDir()
-
-Creates a temporary directory, runs `fn` with its absolute path, and removes the directory
-recursively afterward — even when `fn` throws. The `mktemp -d` analog.
-
-```ts
-interface TempDirOptions {
-  prefix?: string;  // directory name prefix, defaults to 'dsh-'
-}
-
-declare function withTempDir<T>(
-  fn: (dir: string) => T | Promise<T>,
-  options?: TempDirOptions
-): Promise<T>;
-```
-
-Example:
-```js
-import {withTempDir, $} from 'dollar-shell';
-
-const result = await withTempDir(async dir => {
-  await $({cwd: dir})`tar xf ${archive}`;
-  return summary;   // becomes withTempDir()'s result
-}); // dir is removed here, even on throw
-```
-
 ## shell / sh
 
 Like `$$` but executes the command through a shell. Supports shell-specific features like pipes, aliases, and functions.

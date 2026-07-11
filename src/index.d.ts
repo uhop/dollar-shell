@@ -304,26 +304,6 @@ export interface CaptureResult extends DollarResult {
 export declare const capture: Dollar<Promise<CaptureResult>, CaptureOptions>;
 
 /**
- * Options for {@link withTempDir}.
- */
-export interface TempDirOptions {
-  /**
-   * The prefix of the temporary directory's name. Defaults to `'dsh-'`.
-   */
-  prefix?: string;
-}
-
-/**
- * Creates a temporary directory, runs `fn` with its absolute path, and removes
- * the directory recursively afterward — even when `fn` throws. Resolves to the
- * result of `fn`.
- */
-export declare function withTempDir<T>(
-  fn: (dir: string) => T | Promise<T>,
-  options?: TempDirOptions
-): Promise<T>;
-
-/**
  * Options for the shell functions.
  */
 export interface ShellOptions extends SpawnOptions {
